@@ -15,24 +15,23 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# L'URL de connexion vient de l'environnement (.env à la racine de geo-emploi-db),
-# pas de alembic.ini : pas de credentials versionnés.
+# L'URL de connexion vient de l'environnement (ou du .env local), jamais de
+# alembic.ini : pas de credentials versionnés.
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
 
 
 def get_url() -> str:
     url = os.getenv("DATABASE_URL")
-    if url:
-        return url
-
-    user = os.getenv("POSTGRES_USER", "geo_emploi")
-    password = os.getenv("POSTGRES_PASSWORD", "geo_emploi")
-    host = os.getenv("POSTGRES_HOST", "localhost")
-    port = os.getenv("POSTGRES_PORT", "5432")
-    db = os.getenv("POSTGRES_DB", "geo_emploi")
-    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+    if not url:
+        raise RuntimeError(
+            "DATABASE_URL n'est pas définie. Exemple :\n"
+            "  export DATABASE_URL="
+            "postgresql+psycopg2://user:password@host:5432/geo_emploi"
+        )
+    return url
 
 
+# %% : configparser interpole les %, un mot de passe qui en contient casserait.
 config.set_main_option("sqlalchemy.url", get_url().replace("%", "%%"))
 
 # Les migrations sont écrites à la main (pas de modèles SQLAlchemy côté repo),

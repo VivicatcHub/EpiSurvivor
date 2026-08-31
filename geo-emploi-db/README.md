@@ -1,34 +1,44 @@
 # geo-emploi-db
 
-Base de données PostgreSQL de geo-emploi et ses migrations Alembic.
+Migrations Alembic du schéma PostgreSQL de geo-emploi.
 
-## Stack
+Ce dossier ne contient **que** les migrations : le serveur PostgreSQL (docker
+compose, service managé, instance locale…) est fourni à côté et n'est pas géré
+ici.
 
-| Composant | Version | Rôle |
-|---|---|---|
-| PostgreSQL | 17 (alpine) | base, extension `citext` |
-| Alembic | 1.19 | migrations versionnées |
-| SQLAlchemy | 2.0 | couche DDL utilisée par les migrations |
-| psycopg2 | 2.9 | driver |
+## Prérequis
 
-## Démarrage
+- Python 3.12+
+- une base PostgreSQL accessible, avec un rôle autorisé à `CREATE EXTENSION`
+  (la première migration active `citext`)
+
+## Installation
 
 ```bash
-cp .env.example .env      # ajuster le port si 5432 est déjà pris localement
-make up                   # lance le conteneur postgres et attend qu'il soit healthy
-make migrate              # crée le venv si besoin, puis alembic upgrade head
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 ```
 
-`make psql` ouvre un shell psql dans le conteneur, `make down` arrête la stack.
+## Configuration
 
-## Migrations
+`alembic/env.py` lit l'URL de connexion dans `DATABASE_URL` — depuis
+l'environnement, ou depuis un `.env` placé à la racine de ce dossier. Rien n'est
+écrit dans `alembic.ini`, et `.env` n'est pas versionné.
 
 ```bash
-make current              # révision appliquée
-make history              # historique
-make migrate              # upgrade head
-make downgrade            # downgrade -1
-make reset                # supprime le volume, recrée, remigre
+export DATABASE_URL=postgresql+psycopg2://user:password@host:5432/geo_emploi
+```
+
+Si la variable est absente, Alembic s'arrête avec un message explicite.
+
+## Utilisation
+
+```bash
+.venv/bin/alembic upgrade head      # appliquer toutes les migrations
+.venv/bin/alembic current           # révision appliquée
+.venv/bin/alembic history --verbose # historique
+.venv/bin/alembic downgrade -1      # revenir d'une révision
+.venv/bin/alembic upgrade head --sql # générer le SQL sans l'exécuter
 ```
 
 Nouvelle migration :
@@ -40,15 +50,6 @@ Nouvelle migration :
 Les migrations sont écrites à la main : il n'y a pas de modèles SQLAlchemy dans
 ce repo, donc `--autogenerate` n'a rien à comparer (`target_metadata = None`).
 
-## Configuration
-
-`alembic.ini` ne contient aucune URL. `alembic/env.py` lit `DATABASE_URL` depuis
-l'environnement ou le `.env` local, avec un repli sur les variables
-`POSTGRES_*`. `.env` n'est pas versionné.
-
-Depuis l'hôte, l'hôte de la base est `localhost` ; depuis un autre conteneur du
-réseau compose, c'est `db`.
-
 ## Schéma (0001_initial_schema)
 
 `account` porte l'authentification (email `CITEXT`, donc unicité insensible à la
@@ -59,5 +60,6 @@ annonces d'un employeur (géolocalisées : code INSEE, lat/lon, rayon), et
 `application` la candidature d'un `job_seeker` sur une `job_offer` — unique par
 couple (candidat, offre).
 
-Les statuts sont des ENUM PostgreSQL : `account_role`, `account_status`,
-`verif_status`, `moder_status`, `app_status`, `contract_type`.
+Les statuts sont des ENUM PostgreSQL créés explicitement par la migration :
+`account_role`, `account_status`, `verif_status`, `moder_status`, `app_status`,
+`contract_type`.

@@ -1,28 +1,26 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import Link from "next/link";
+import { Fragment, useEffect } from "react";
 import {
+  Circle,
   MapContainer,
-  TileLayer,
   Marker,
   Popup,
+  TileLayer,
+  useMap,
   useMapEvents,
 } from "react-leaflet";
-import type { Listing, BoundsBox } from "@/lib/schemas";
+import { CHARTE_BLEU, markerIcon } from "./marker-icon";
+import type { BoundsBox, Listing } from "@/lib/schemas";
 
 export type MapCanvasProps = {
   listings: Listing[];
   onBoundsChange: (bounds: BoundsBox) => void;
+  showRadius?: boolean;
+  focus?: { lat: number; lng: number } | null;
 };
-
-const icon = L.icon({
-  iconUrl: "/leaflet/marker-icon.png",
-  iconRetinaUrl: "/leaflet/marker-icon-2x.png",
-  shadowUrl: "/leaflet/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
 
 function BoundsWatcher({
   onChange,
@@ -43,9 +41,19 @@ function BoundsWatcher({
   return null;
 }
 
+function Recenter({ focus }: { focus?: { lat: number; lng: number } | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (focus) map.flyTo([focus.lat, focus.lng], 13, { duration: 1.2 });
+  }, [focus, map]);
+  return null;
+}
+
 export default function MapCanvas({
   listings,
   onBoundsChange,
+  showRadius = false,
+  focus,
 }: MapCanvasProps) {
   return (
     <MapContainer center={[46.6, 2.4]} zoom={6} className="h-full w-full">
@@ -54,20 +62,47 @@ export default function MapCanvas({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
       <BoundsWatcher onChange={onBoundsChange} />
+      <Recenter focus={focus} />
+      {focus ? (
+        <Circle
+          center={[focus.lat, focus.lng]}
+          radius={300}
+          pathOptions={{
+            color: CHARTE_BLEU,
+            weight: 2,
+            opacity: 0.9,
+            fillOpacity: 0.12,
+          }}
+        />
+      ) : null}
       {listings.map((listing) => (
-        <Marker
-          key={listing.id}
-          position={[listing.lat, listing.lng]}
-          icon={icon}
-        >
-          <Popup>
-            <span className="font-medium">{listing.title}</span>
-            <br />
-            {listing.company} - {listing.city}
-            <br />
-            <a href={listing.url}>Plus...</a>
-          </Popup>
-        </Marker>
+        <Fragment key={listing.id}>
+          {showRadius ? (
+            <Circle
+              center={[listing.lat, listing.lng]}
+              radius={listing.radiusKm * 1000}
+              pathOptions={{
+                color: CHARTE_BLEU,
+                weight: 1,
+                opacity: 0.4,
+                fillOpacity: 0.06,
+              }}
+            />
+          ) : null}
+          <Marker position={[listing.lat, listing.lng]} icon={markerIcon}>
+            <Popup>
+              <span className="font-medium">{listing.title}</span>
+              <br />
+              {listing.company} — {listing.city}
+              <br />
+              {listing.contract} · {listing.salary}
+              <br />
+              <Link href={`/offres/${listing.id}`}>
+                Voir l&apos;offre et postuler
+              </Link>
+            </Popup>
+          </Marker>
+        </Fragment>
       ))}
     </MapContainer>
   );

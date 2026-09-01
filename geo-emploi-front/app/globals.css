@@ -4,12 +4,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+   Charte graphique — Ministère du Job et Bonheur
+   Référence : charte ministérielle (47 p.), règles appliquées ici :
+     1. Bleu institutionnel #1B3A6B en couleur primaire — JAMAIS en fond de
+        bouton (voir --encre pour les boutons pleins et --primary-surface pour
+        les états sélectionnés).
+     2. Marianne pour les titres, Spectral pour le corps de texte.
+     3. Bloc-marque en haut à gauche, zone de protection respectée, jamais sur
+        une photo (voir components/brand/brand-block.tsx).
+   Toute évolution de ces trois tokens doit passer par le conseiller com.
+--------------------------------------------------------------------------- */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+
+  /* Marianne (titres) — repli sur la sans-serif embarquée tant que les
+     fichiers licenciés de la charte ne sont pas fournis. */
+  --font-heading: "Marianne", var(--font-geist-sans), Arial, Helvetica,
+    sans-serif;
+  /* Spectral (corps de texte) */
+  --font-serif: var(--font-spectral), Georgia, "Times New Roman", serif;
+  /* Sans-serif réservée aux éléments d'interface (boutons, libellés, tableaux) */
+  --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-primary-surface: var(--primary-surface);
+  --color-primary-surface-foreground: var(--primary-surface-foreground);
+  --color-encre: var(--encre);
+  --color-encre-foreground: var(--encre-foreground);
+  --color-tricolore-bleu: var(--tricolore-bleu);
+  --color-tricolore-blanc: var(--tricolore-blanc);
+  --color-tricolore-rouge: var(--tricolore-rouge);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +77,91 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Couleurs de la charte */
+  --charte-bleu: #1b3a6b; /* bleu institutionnel */
+  --encre: #11172e; /* fond du bloc-marque, utilisé pour les boutons pleins */
+  --encre-foreground: #ffffff;
+  --tricolore-bleu: #1d3a90;
+  --tricolore-blanc: #f1eeea;
+  --tricolore-rouge: #a4252b;
+
+  --background: #ffffff;
+  --foreground: #11172e;
+  --card: #ffffff;
+  --card-foreground: #11172e;
+  --popover: #ffffff;
+  --popover-foreground: #11172e;
+
+  /* Primaire : titres, liens, icônes, états actifs. Jamais en fond de bouton. */
+  --primary: var(--charte-bleu);
+  --primary-foreground: #ffffff;
+  --primary-surface: #e8eef7;
+  --primary-surface-foreground: #16305a;
+
+  --secondary: #eef0f4;
+  --secondary-foreground: #11172e;
+  --muted: #f4f5f8;
+  --muted-foreground: #56607a;
+  --accent: #e8eef7;
+  --accent-foreground: #16305a;
+  --destructive: var(--tricolore-rouge);
+  --border: #dde1ea;
+  --input: #dde1ea;
+  --ring: var(--charte-bleu);
+  --chart-1: #1b3a6b;
+  --chart-2: #2f5b9c;
+  --chart-3: #5c83bd;
+  --chart-4: #97b2d6;
+  --chart-5: #a4252b;
+  --radius: 0.375rem;
+  --sidebar: #f4f5f8;
+  --sidebar-foreground: #11172e;
+  --sidebar-primary: var(--charte-bleu);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8eef7;
+  --sidebar-accent-foreground: #16305a;
+  --sidebar-border: #dde1ea;
+  --sidebar-ring: var(--charte-bleu);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --charte-bleu: #7ea3d4; /* variante claire, contraste AA sur fond encre */
+  --encre: #f1eeea;
+  --encre-foreground: #11172e;
+
+  --background: #0b1022;
+  --foreground: #f1eeea;
+  --card: #131a33;
+  --card-foreground: #f1eeea;
+  --popover: #131a33;
+  --popover-foreground: #f1eeea;
+  --primary: var(--charte-bleu);
+  --primary-foreground: #11172e;
+  --primary-surface: #1c2a4d;
+  --primary-surface-foreground: #cfe0f5;
+  --secondary: #1b2340;
+  --secondary-foreground: #f1eeea;
+  --muted: #1b2340;
+  --muted-foreground: #a4adc4;
+  --accent: #1c2a4d;
+  --accent-foreground: #cfe0f5;
+  --destructive: #d9727a;
+  --border: #ffffff1a;
+  --input: #ffffff26;
+  --ring: var(--charte-bleu);
+  --chart-1: #7ea3d4;
+  --chart-2: #5c83bd;
+  --chart-3: #2f5b9c;
+  --chart-4: #1b3a6b;
+  --chart-5: #d9727a;
+  --sidebar: #131a33;
+  --sidebar-foreground: #f1eeea;
+  --sidebar-primary: var(--charte-bleu);
+  --sidebar-primary-foreground: #11172e;
+  --sidebar-accent: #1c2a4d;
+  --sidebar-accent-foreground: #cfe0f5;
+  --sidebar-border: #ffffff1a;
+  --sidebar-ring: var(--charte-bleu);
 }
 
 @layer base {
@@ -124,7 +171,69 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Règle 2 de la charte : Spectral pour le corps de texte… */
   html {
-    @apply font-sans;
+    font-family: var(--font-serif);
   }
+  /* …Marianne pour les titres. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  /* Les éléments d'interface (contrôles, libellés, données tabulaires) restent
+     en sans-serif : la charte n'impose Spectral que sur le corps de texte. */
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  th,
+  nav,
+  [data-slot="badge"] {
+    font-family: var(--font-sans);
+  }
+}
+
+/* Leaflet panes default to z-index 400-1000 and would sit above the app chrome
+   (sticky header, dialogs). Keep the map inside the normal stacking order. */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10;
+}
+
+/* La carte est le premier écran vu par la presse : elle porte aussi la charte. */
+.leaflet-container {
+  font-family: var(--font-sans);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+}
+
+.leaflet-popup-content a {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.leaflet-bar a,
+.leaflet-control-attribution {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/* Le marqueur est un divIcon : neutraliser le fond blanc par défaut de Leaflet. */
+.geoemploi-marker {
+  background: transparent;
+  border: 0;
 }

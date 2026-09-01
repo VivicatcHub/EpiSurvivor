@@ -1,22 +1,27 @@
 import { MapShell } from "@/components/map/map-shell";
-import type { Listing } from "@/lib/schemas";
+import { getPublicListings } from "@/lib/mock-data";
+import type { ContractType } from "@/lib/schemas";
 
-const SAMPLE_LISTINGS: Listing[] = [
-  {
-    id: "1",
-    title: "Viendre !",
-    company: "Epitech",
-    city: "Lyon",
-    url: "#",
-    lat: 45.74633950038525,
-    lng: 4.835143989757663,
-  },
-];
+export const metadata = { title: "Carte des offres" };
 
-export default function Offres() {
+export default async function OffresPage({
+  searchParams,
+}: PageProps<"/offres">) {
+  const params = await searchParams;
+  const q = typeof params.q === "string" ? params.q : undefined;
+  const contract =
+    typeof params.contract === "string"
+      ? (params.contract as ContractType | "toutes")
+      : undefined;
+
+  const listings = getPublicListings({ q, contract });
+
   return (
-    <main className="h-dvh p-6">
-      <MapShell initialListings={SAMPLE_LISTINGS} />
+    <main className="h-[calc(100dvh-3.75rem)] overflow-hidden lg:p-4">
+      <MapShell
+        key={`${q ?? ""}-${contract ?? ""}`}
+        initialListings={listings}
+      />
     </main>
   );
 }

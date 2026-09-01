@@ -1,0 +1,3 @@
+# markedown
+*.md
+!README.md

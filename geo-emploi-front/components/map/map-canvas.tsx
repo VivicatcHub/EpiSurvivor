@@ -44,7 +44,7 @@ function BoundsWatcher({
 function Recenter({ focus }: { focus?: { lat: number; lng: number } | null }) {
   const map = useMap();
   useEffect(() => {
-    if (focus) map.flyTo([focus.lat, focus.lng], 13, { duration: 1.2 });
+    if (focus) map.flyTo([focus.lat, focus.lng], 18, { duration: 4.2 });
   }, [focus, map]);
   return null;
 }
@@ -66,7 +66,7 @@ export default function MapCanvas({
       {focus ? (
         <Circle
           center={[focus.lat, focus.lng]}
-          radius={300}
+          radius={10}
           pathOptions={{
             color: CHARTE_BLEU,
             weight: 2,

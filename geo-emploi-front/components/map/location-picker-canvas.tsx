@@ -36,7 +36,7 @@ export default function LocationPickerCanvas({
   return (
     <MapContainer
       center={[value.lat, value.lng]}
-      zoom={12}
+      zoom={6}
       className="h-full w-full"
     >
       <TileLayer

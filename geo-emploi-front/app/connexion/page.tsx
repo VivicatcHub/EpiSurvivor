@@ -14,8 +14,8 @@ export default function ConnexionPage() {
         Connexion à GéoEmploi
       </h1>
       <p className="mt-1 mb-8 text-sm text-muted-foreground">
-        Prototype : aucun mot de passe n&apos;est vérifié, choisissez simplement
-        le rôle à démontrer.
+        Accédez à votre espace : suivi de candidatures, publication d&apos;offres
+        ou administration du service.
       </p>
       <Suspense>
         <AuthForm mode="connexion" />

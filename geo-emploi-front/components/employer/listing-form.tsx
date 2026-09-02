@@ -1,26 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { publishListing } from "@/app/actions/offers";
+import type { FormState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LocationPicker } from "@/components/map/location-picker";
-import { CONTRACT_TYPES } from "@/lib/mock-data";
+import { CONTRACT_LABELS, CONTRACT_TYPES } from "@/lib/labels";
 
-export function ListingForm() {
+function Submit() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      {pending ? "Publication…" : "Publier l'offre"}
+    </Button>
+  );
+}
+
+export function ListingForm({ maxRadiusKm }: { maxRadiusKm: number }) {
   const [position, setPosition] = useState({ lat: 45.74634, lng: 4.835144 });
-  const [radiusKm, setRadiusKm] = useState(15);
-  const [payload, setPayload] = useState<Record<string, unknown> | null>(null);
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget));
-    setPayload({ ...data, radiusKm, lat: position.lat, lng: position.lng });
-  }
+  const [radiusKm, setRadiusKm] = useState(Math.min(15, maxRadiusKm));
+  const [state, action] = useActionState<FormState, FormData>(
+    publishListing,
+    {},
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-2">
+    <form action={action} className="grid gap-8 lg:grid-cols-2">
+      {/* La position vient de la carte, pas d'une saisie : on la transporte
+          en champs cachés pour que l'action reçoive un FormData complet. */}
+      <input type="hidden" name="lat" value={position.lat} />
+      <input type="hidden" name="lng" value={position.lng} />
+      <input type="hidden" name="radiusKm" value={radiusKm} />
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="title">Intitulé du poste</Label>
@@ -38,12 +53,12 @@ export function ListingForm() {
             <select
               id="contract"
               name="contract"
-              defaultValue="CDI"
+              defaultValue="permanent"
               className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               {CONTRACT_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {type}
+                  {CONTRACT_LABELS[type]}
                 </option>
               ))}
             </select>
@@ -75,6 +90,9 @@ export function ListingForm() {
               id="postalCode"
               name="postalCode"
               required
+              inputMode="numeric"
+              pattern="[0-9]{5}"
+              maxLength={5}
               placeholder="69003"
             />
           </div>
@@ -83,6 +101,18 @@ export function ListingForm() {
         <div className="space-y-2">
           <Label htmlFor="city">Ville</Label>
           <Input id="city" name="city" required placeholder="Lyon" />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="skills">Compétences attendues</Label>
+          <Input
+            id="skills"
+            name="skills"
+            placeholder="React, TypeScript, Tailwind"
+          />
+          <p className="text-xs text-muted-foreground">
+            Séparées par des virgules.
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -96,21 +126,25 @@ export function ListingForm() {
             id="radius"
             type="range"
             min={5}
-            max={50}
+            max={maxRadiusKm}
             step={5}
             value={radiusKm}
             onChange={(event) => setRadiusKm(Number(event.target.value))}
             className="w-full accent-primary"
           />
           <p className="text-xs text-muted-foreground">
-            Formule Standard : jusqu&apos;à 15 km inclus. Au-delà, un supplément
-            sera facturé.
+            Votre formule couvre jusqu&apos;à {maxRadiusKm} km. Au-delà, il faut
+            changer d&apos;abonnement.
           </p>
         </div>
 
-        <Button type="submit" size="lg" className="w-full">
-          Publier l&apos;offre
-        </Button>
+        {state.error ? (
+          <p role="alert" className="text-sm text-destructive">
+            {state.error}
+          </p>
+        ) : null}
+
+        <Submit />
       </div>
 
       <div className="space-y-3">
@@ -131,17 +165,6 @@ export function ListingForm() {
         <p className="font-mono text-xs text-muted-foreground">
           lat {position.lat.toFixed(5)} · lng {position.lng.toFixed(5)}
         </p>
-
-        {payload ? (
-          <div className="space-y-2 rounded-xl bg-muted p-4">
-            <p className="text-sm font-medium">
-              Offre prête à être envoyée à l&apos;API
-            </p>
-            <pre className="overflow-x-auto font-mono text-xs text-muted-foreground">
-              {JSON.stringify(payload, null, 2)}
-            </pre>
-          </div>
-        ) : null}
       </div>
     </form>
   );

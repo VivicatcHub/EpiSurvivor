@@ -6,16 +6,17 @@ import { usePathname } from "next/navigation";
 import { LogOut, Menu, X } from "lucide-react";
 import { BrandBlock } from "@/components/brand/brand-block";
 import { Button } from "@/components/ui/button";
-import { ROLE_LABELS, useDemoSession } from "@/lib/demo-session";
+import { signOut } from "@/app/actions/auth";
+import { ROLE_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
-import type { Role } from "@/lib/schemas";
+import type { Role, SessionUser } from "@/lib/schemas";
 
 const NAV_BY_ROLE: Record<Role, { href: string; label: string }[]> = {
-  chercheur: [
+  job_seeker: [
     { href: "/offres", label: "Carte" },
     { href: "/profil", label: "Mon profil" },
   ],
-  employeur: [
+  employer: [
     { href: "/offres", label: "Carte" },
     { href: "/employeur", label: "Mes offres" },
     { href: "/employeur/profil", label: "Entreprise" },
@@ -28,10 +29,14 @@ const NAV_BY_ROLE: Record<Role, { href: string; label: string }[]> = {
 
 const PUBLIC_NAV = [{ href: "/offres", label: "Carte des offres" }];
 
-export function SiteHeader() {
-  const { session, signOut } = useDemoSession();
+/**
+ * `user` vient du layout serveur : l'en-tête ne devine pas la session côté
+ * client, il affiche celle que le serveur a vérifiée. Pas de clignotement
+ * « déconnecté puis connecté » au premier rendu.
+ */
+export function SiteHeader({ user }: { user: SessionUser | null }) {
   const pathname = usePathname();
-  const links = session ? NAV_BY_ROLE[session.role] : PUBLIC_NAV;
+  const links = user ? NAV_BY_ROLE[user.role] : PUBLIC_NAV;
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -66,15 +71,19 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto hidden items-center gap-2 md:flex">
-          {session ? (
+          {user ? (
             <>
               <span className="hidden text-sm text-muted-foreground sm:inline">
-                {session.name} · {ROLE_LABELS[session.role]}
+                {user.name} · {ROLE_LABELS[user.role]}
               </span>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut data-icon="inline-start" />
-                Déconnexion
-              </Button>
+              {/* La déconnexion est une mutation : un formulaire POST vers une
+                  Server Action, pas un onClick qui vide un localStorage. */}
+              <form action={signOut}>
+                <Button type="submit" variant="ghost" size="sm">
+                  <LogOut data-icon="inline-start" />
+                  Déconnexion
+                </Button>
+              </form>
             </>
           ) : (
             <>
@@ -129,23 +138,22 @@ export function SiteHeader() {
           </nav>
 
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 border-t border-border px-4 py-3">
-            {session ? (
+            {user ? (
               <>
                 <span className="text-sm text-muted-foreground">
-                  {session.name} · {ROLE_LABELS[session.role]}
+                  {user.name} · {ROLE_LABELS[user.role]}
                 </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    signOut();
-                  }}
-                >
-                  <LogOut data-icon="inline-start" />
-                  Déconnexion
-                </Button>
+                <form action={signOut} onSubmit={() => setMenuOpen(false)}>
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    <LogOut data-icon="inline-start" />
+                    Déconnexion
+                  </Button>
+                </form>
               </>
             ) : (
               <>

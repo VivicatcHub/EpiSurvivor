@@ -50,6 +50,27 @@ Nouvelle migration :
 Les migrations sont écrites à la main : il n'y a pas de modèles SQLAlchemy dans
 ce repo, donc `--autogenerate` n'a rien à comparer (`target_metadata = None`).
 
+## Migrations
+
+| Révision                   | Contenu                                                       |
+| -------------------------- | ------------------------------------------------------------- |
+| `0001_initial_schema`      | schéma de domaine, ENUM, contraintes                          |
+| `0002_app_fields`          | champs consommés par l'application, signalements, abonnements  |
+| `0003_application_cascade` | `application.employer_id` en `ON DELETE CASCADE`               |
+
+`0002_app_fields` ajoute ce que les écrans utilisent réellement : `display_name`
+sur `account` (les comptes admin n'ont ni `job_seeker` ni `employer`), accroche
+et ville sur `job_seeker`, secteur / contact / abonnement sur `employer`,
+libellé de salaire et adresse postale sur `job_offer`, la table d'association
+`job_offer_skill`, le message porté par une `application`, et la table
+`offer_report` (§5 du sujet — le signalement est ouvert aux visiteurs anonymes,
+d'où un `reporter_account_id` nullable).
+
+`0003_application_cascade` corrige une asymétrie de `0001` : les deux autres
+clés étrangères d'`application` étaient en `CASCADE`, celle vers `employer`
+non. Un employeur ayant reçu une candidature ne pouvait donc pas supprimer son
+compte, ce que le RGPD impose (§3.3).
+
 ## Schéma (0001_initial_schema)
 
 `account` porte l'authentification (email `CITEXT`, donc unicité insensible à la

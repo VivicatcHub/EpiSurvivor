@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteAccountForm } from "@/components/profile/delete-account-form";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { BadgeGrid } from "@/components/profile/badge-grid";
@@ -14,33 +15,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getSeekerApplications, getSeekerProfile } from "@/lib/api/account";
+import { requireRole } from "@/lib/dal";
 import {
+  APPLICATION_STATUS_LABELS,
   BADGES,
-  SEEKER,
   WORK_PERMIT_GOAL,
-  getApplicationsForSeeker,
-  getListing,
-} from "@/lib/mock-data";
-import type { ApplicationStatus } from "@/lib/schemas";
+  formatDate,
+} from "@/lib/labels";
 
 export const metadata = { title: "Mon profil" };
 
-const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  envoyee: "Envoyée",
-  vue: "Vue par l'employeur",
-  entretien: "Entretien",
-  refusee: "Refusée",
-};
-
-export default function ProfilPage() {
-  const applications = getApplicationsForSeeker(SEEKER.id);
-  const remaining = Math.max(0, WORK_PERMIT_GOAL - SEEKER.caught);
+export default async function ProfilPage() {
+  const user = await requireRole("job_seeker", "/profil");
+  const [seeker, applications] = await Promise.all([
+    getSeekerProfile(),
+    getSeekerApplications(),
+  ]);
+  const remaining = Math.max(0, WORK_PERMIT_GOAL - seeker.caught);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 space-y-10 px-4 py-10">
       <PageHeader
-        title={SEEKER.name}
-        description={`${SEEKER.headline} · ${SEEKER.city} · ${SEEKER.availability}`}
+        title={seeker.name}
+        description={[seeker.headline, seeker.city, seeker.availability]
+          .filter(Boolean)
+          .join(" · ")}
         actions={
           <Button variant="outline" render={<Link href="/offres" />}>
             Attraper des offres
@@ -56,7 +56,7 @@ export default function ProfilPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">
-            {SEEKER.caught}
+            {seeker.caught}
           </CardContent>
         </Card>
         <Card size="sm">
@@ -76,7 +76,7 @@ export default function ProfilPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <Progress value={(SEEKER.caught / WORK_PERMIT_GOAL) * 100} />
+            <Progress value={(seeker.caught / WORK_PERMIT_GOAL) * 100} />
             <p>
               {remaining === 0
                 ? "Débloqué 🎉"
@@ -88,52 +88,66 @@ export default function ProfilPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Badges</h2>
-        <BadgeGrid badges={BADGES} caught={SEEKER.caught} />
+        <BadgeGrid badges={BADGES} caught={seeker.caught} />
       </section>
 
       <section className="grid gap-8 md:grid-cols-2">
         <div className="space-y-3">
           <h2 className="text-lg font-medium">Compétences</h2>
-          <ul className="flex flex-wrap gap-1.5">
-            {SEEKER.skills.map((skill) => (
-              <li key={skill}>
-                <Badge variant="outline">{skill}</Badge>
-              </li>
-            ))}
-          </ul>
+          {seeker.skills.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aucune compétence renseignée pour l&apos;instant.
+            </p>
+          ) : (
+            <ul className="flex flex-wrap gap-1.5">
+              {seeker.skills.map((skill) => (
+                <li key={skill}>
+                  <Badge variant="outline">{skill}</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="space-y-3">
           <h2 className="text-lg font-medium">Disponibilité</h2>
-          <p className="text-sm text-muted-foreground">{SEEKER.availability}</p>
-          <p className="text-sm text-muted-foreground">
-            Zone de recherche : {SEEKER.city} et alentours
-          </p>
+          <p className="text-sm text-muted-foreground">{seeker.availability}</p>
+          {seeker.city ? (
+            <p className="text-sm text-muted-foreground">
+              Zone de recherche : {seeker.city} et alentours
+            </p>
+          ) : null}
         </div>
       </section>
 
       <section className="space-y-3">
         <h2 className="text-lg font-medium">Expériences</h2>
-        <ul className="space-y-3">
-          {SEEKER.experiences.map((experience) => (
-            <li
-              key={experience.id}
-              className="rounded-xl p-4 ring-1 ring-foreground/10"
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="font-medium">
-                  {experience.role} — {experience.company}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {experience.period}
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {experience.description}
-              </p>
-            </li>
-          ))}
-        </ul>
+        {seeker.experiences.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Aucune expérience enregistrée.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {seeker.experiences.map((experience) => (
+              <li
+                key={experience.id}
+                className="rounded-xl p-4 ring-1 ring-foreground/10"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="font-medium">
+                    {experience.role} — {experience.company}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {experience.period}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {experience.description}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="space-y-3">
@@ -150,51 +164,46 @@ export default function ProfilPage() {
           />
         ) : (
           <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Offre</TableHead>
-              <TableHead>Entreprise</TableHead>
-              <TableHead>Envoyée le</TableHead>
-              <TableHead>Statut</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {applications.map((application) => {
-              const listing = getListing(application.listingId);
-              return (
+            <TableHeader>
+              <TableRow>
+                <TableHead>Offre</TableHead>
+                <TableHead>Entreprise</TableHead>
+                <TableHead>Envoyée le</TableHead>
+                <TableHead>Statut</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {applications.map((application) => (
                 <TableRow key={application.id}>
                   <TableCell className="font-medium">
-                    {listing ? (
-                      <Link
-                        href={`/offres/${listing.id}`}
-                        className="underline-offset-4 hover:underline"
-                      >
-                        {listing.title}
-                      </Link>
-                    ) : (
-                      "Offre archivée"
-                    )}
+                    <Link
+                      href={`/offres/${application.listingId}`}
+                      className="underline-offset-4 hover:underline"
+                    >
+                      {application.listingTitle}
+                    </Link>
                   </TableCell>
-                  <TableCell>{listing?.company ?? "—"}</TableCell>
-                  <TableCell>{application.sentAt}</TableCell>
+                  <TableCell>{application.listingCompany}</TableCell>
+                  <TableCell>{formatDate(application.sentAt)}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
-                        application.status === "refusee"
+                        application.status === "rejected"
                           ? "destructive"
                           : "secondary"
                       }
                     >
-                      {STATUS_LABELS[application.status]}
+                      {APPLICATION_STATUS_LABELS[application.status]}
                     </Badge>
                   </TableCell>
                 </TableRow>
-              );
-            })}
-          </TableBody>
+              ))}
+            </TableBody>
           </Table>
         )}
       </section>
+
+      <DeleteAccountForm email={user.email} />
     </main>
   );
 }

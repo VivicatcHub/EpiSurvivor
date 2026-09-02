@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
+import { PlanForm } from "@/components/employer/plan-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,20 +10,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { COMPANY } from "@/lib/mock-data";
+import { getCompany } from "@/lib/api/account";
+import { requireRole } from "@/lib/dal";
+import { PLAN_LABELS, formatDate } from "@/lib/labels";
 
 export const metadata = { title: "Profil entreprise" };
 
-const INFO_ROWS: [string, string][] = [
-  ["Raison sociale", COMPANY.name],
-  ["SIRET", COMPANY.siret],
-  ["Secteur", COMPANY.sector],
-  ["Ville", COMPANY.city],
-  ["Contact", COMPANY.contactEmail],
-];
+export default async function EmployeurProfilPage() {
+  await requireRole("employer", "/employeur/profil");
+  const company = await getCompany();
 
-export default function EmployeurProfilPage() {
+  const infoRows: [string, string][] = [
+    ["Raison sociale", company.name],
+    ["SIRET", company.siret || "Non renseigné"],
+    ["Secteur", company.sector || "Non renseigné"],
+    ["Ville", company.city || "Non renseignée"],
+    ["Contact", company.contactEmail],
+  ];
+
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-10">
       <PageHeader
@@ -39,16 +44,12 @@ export default function EmployeurProfilPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {INFO_ROWS.map(([label, value]) => (
+            {infoRows.map(([label, value]) => (
               <div key={label}>
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <p className="text-sm">{value}</p>
               </div>
             ))}
-            <Separator />
-            <Button variant="outline" size="sm">
-              Modifier les informations
-            </Button>
           </CardContent>
         </Card>
 
@@ -56,31 +57,38 @@ export default function EmployeurProfilPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               Abonnement
-              <Badge variant="secondary">Standard</Badge>
+              <Badge variant="secondary">{PLAN_LABELS[company.plan]}</Badge>
             </CardTitle>
             <CardDescription>
-              Actif depuis le {COMPANY.subscribedSince}.
+              {company.subscribedSince
+                ? `Actif depuis le ${formatDate(company.subscribedSince)}.`
+                : "Aucun abonnement en cours."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-3xl font-semibold">
-              {COMPANY.planPrice} €
+              {company.planPrice} €
               <span className="text-base font-normal text-muted-foreground">
                 {" "}
                 / mois
               </span>
             </p>
             <p className="text-sm text-muted-foreground">
-              Rayon de diffusion inclus : {COMPANY.radiusKm} km autour de vos
+              Rayon de diffusion inclus : {company.radiusKm} km autour de vos
               établissements.
             </p>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" render={<Link href="/employeur/abonnement" />}>
                 Changer de formule
               </Button>
-              <Button size="sm" variant="destructive">
-                Résilier
-              </Button>
+              {company.plan === "none" ? null : (
+                <PlanForm
+                  plan="none"
+                  label="Résilier"
+                  variant="destructive"
+                  pendingLabel="Résiliation…"
+                />
+              )}
             </div>
           </CardContent>
         </Card>

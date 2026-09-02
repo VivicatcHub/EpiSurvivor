@@ -13,6 +13,7 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { CHARTE_BLEU, markerIcon } from "./marker-icon";
+import { CONTRACT_LABELS } from "@/lib/labels";
 import type { BoundsBox, Listing } from "@/lib/schemas";
 
 export type MapCanvasProps = {
@@ -95,7 +96,7 @@ export default function MapCanvas({
               <br />
               {listing.company} — {listing.city}
               <br />
-              {listing.contract} · {listing.salary}
+              {CONTRACT_LABELS[listing.contract]} · {listing.salary}
               <br />
               <Link href={`/offres/${listing.id}`}>
                 Voir l&apos;offre et postuler

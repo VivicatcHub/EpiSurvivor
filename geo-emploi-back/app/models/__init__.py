@@ -11,12 +11,6 @@ ni de jose, pour que le venv des migrations reste léger.
 
 from app.models.candidat import Experience, JobSeekerCompetence
 from app.models.compte import Employer, JobSeeker, User
-from app.models.enums import (
-    StatutCandidature,
-    StatutModer,
-    StatutVerif,
-    TypeContrat,
-)
 from app.models.offre import Candidature, Offre
 from app.models.referentiel import Competence, TitrePoste
 
@@ -28,10 +22,6 @@ __all__ = [
     "JobSeeker",
     "JobSeekerCompetence",
     "Offre",
-    "StatutCandidature",
-    "StatutModer",
-    "StatutVerif",
     "TitrePoste",
-    "TypeContrat",
     "User",
 ]

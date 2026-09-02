@@ -8,7 +8,6 @@ from sqlalchemy import CHAR, Column, Date, Text
 from sqlmodel import Field, SQLModel
 
 from app.models.columns import created_at, fk
-from app.models.enums import STATUT_VERIF, StatutVerif
 
 
 class User(SQLModel, table=True):
@@ -49,13 +48,9 @@ class Employer(SQLModel, table=True):
     nom: str = Field(sa_column=Column(Text, nullable=False))
     siret: str | None = Field(default=None, sa_column=Column(CHAR(14), unique=True))
     telephone: str | None = Field(default=None, sa_column=Column(Text))
-    statut_verification: StatutVerif = Field(
-        default=StatutVerif.EN_ATTENTE,
-        sa_column=Column(
-            STATUT_VERIF,
-            nullable=False,
-            server_default=StatutVerif.EN_ATTENTE.value,
-        ),
+    statut_verification: str = Field(
+        default="en_attente",
+        sa_column=Column(Text, nullable=False, server_default="en_attente"),
     )
     created_at: datetime | None = Field(default=None, sa_column=created_at())
     adresse: str | None = Field(default=None, sa_column=Column(Text))

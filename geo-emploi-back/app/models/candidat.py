@@ -9,7 +9,6 @@ from sqlalchemy import CheckConstraint, Column, Date, Text
 from sqlmodel import Field, SQLModel
 
 from app.models.columns import fk
-from app.models.enums import TYPE_CONTRAT, TypeContrat
 
 
 class JobSeekerCompetence(SQLModel, table=True):
@@ -33,9 +32,7 @@ class Experience(SQLModel, table=True):
     job_seeker_id: int = Field(sa_column=fk("job_seeker.id", cascade=True))
     titre_poste_id: int = Field(sa_column=fk("titre_poste.id"))
     entreprise: str = Field(sa_column=Column(Text, nullable=False))
-    type_contrat: TypeContrat | None = Field(
-        default=None, sa_column=Column(TYPE_CONTRAT)
-    )
+    type_contrat: str | None = Field(default=None, sa_column=Column(Text))
     date_debut: date = Field(sa_column=Column(Date, nullable=False))
     # NULL = poste actuel.
     date_fin: date | None = Field(default=None, sa_column=Column(Date))

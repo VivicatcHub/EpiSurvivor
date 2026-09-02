@@ -18,13 +18,22 @@ def fk(
     unique: bool = False,
     primary_key: bool = False,
     cascade: bool = False,
+    nullable: bool = False,
 ) -> Column:
-    """Clé étrangère NOT NULL vers `target`, donné sous la forme
-    'table.colonne'. `cascade` ajoute ON DELETE CASCADE."""
+    """Clé étrangère vers `target`, donné sous la forme 'table.colonne'.
+
+    NOT NULL par défaut. `cascade` ajoute ON DELETE CASCADE : la ligne
+    disparaît avec son parent. Une clé `nullable` prend ON DELETE SET NULL à
+    la place — la ligne survit à son parent, en perdant le lien (c'est le cas
+    du signalement, qui reste instruit même si son auteur supprime son compte).
+    """
+    if cascade and nullable:
+        raise ValueError("cascade et nullable s'excluent : choisir l'un des deux")
+    on_delete = "CASCADE" if cascade else ("SET NULL" if nullable else None)
     return Column(
         Integer,
-        ForeignKey(target, ondelete="CASCADE" if cascade else None),
-        nullable=False,
+        ForeignKey(target, ondelete=on_delete),
+        nullable=nullable,
         unique=unique,
         primary_key=primary_key,
     )

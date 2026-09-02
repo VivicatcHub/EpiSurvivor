@@ -1,22 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Check, Zap } from "lucide-react";
+import { applyToListing } from "@/app/actions/offers";
+import type { FormState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
-import { useDemoSession } from "@/lib/demo-session";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { Role } from "@/lib/schemas";
+
+function Submit({ className }: { className?: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className={className} disabled={pending}>
+      <Zap data-icon="inline-start" />
+      {pending ? "Envoi…" : "Envoyer ma candidature"}
+    </Button>
+  );
+}
 
 export function ApplyButton({
   listingId,
+  role,
   className,
 }: {
   listingId: string;
+  /** Rôle vérifié côté serveur ; `null` pour un visiteur non connecté. */
+  role: Role | null;
   className?: string;
 }) {
-  const { session } = useDemoSession();
-  const [applied, setApplied] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [state, action] = useActionState<FormState, FormData>(
+    applyToListing,
+    {},
+  );
 
-  if (!session) {
+  if (!role) {
     return (
       <Button
         className={className}
@@ -27,7 +48,9 @@ export function ApplyButton({
     );
   }
 
-  if (session.role !== "chercheur") {
+  // §2.2 : postuler est réservé aux chercheurs d'emploi. La Server Action et
+  // le backend le revérifient — ceci n'est que la version visible de la règle.
+  if (role !== "job_seeker") {
     return (
       <Button className={className} disabled>
         Réservé aux chercheurs d&apos;emploi
@@ -35,18 +58,54 @@ export function ApplyButton({
     );
   }
 
-  return (
-    <Button
-      className={className}
-      disabled={applied}
-      onClick={() => setApplied(true)}
-    >
-      {applied ? (
-        <Check data-icon="inline-start" />
-      ) : (
+  if (state.ok) {
+    return (
+      <p className="flex items-center gap-1.5 self-center text-sm text-primary">
+        <Check className="size-4" aria-hidden />
+        Offre attrapée ! Suivez-la depuis votre profil.
+      </p>
+    );
+  }
+
+  if (!open) {
+    return (
+      <Button className={className} onClick={() => setOpen(true)}>
         <Zap data-icon="inline-start" />
-      )}
-      {applied ? "Offre attrapée !" : "Postuler"}
-    </Button>
+        Postuler
+      </Button>
+    );
+  }
+
+  return (
+    <form
+      action={action}
+      className="w-full space-y-3 rounded-xl p-4 ring-1 ring-foreground/10"
+    >
+      <input type="hidden" name="listingId" value={listingId} />
+      <Label htmlFor="apply-message">Votre message à l&apos;employeur</Label>
+      <Textarea
+        id="apply-message"
+        name="message"
+        rows={4}
+        required
+        placeholder="Présentez-vous en quelques lignes."
+      />
+      {state.error ? (
+        <p role="alert" className="text-sm text-destructive">
+          {state.error}
+        </p>
+      ) : null}
+      <div className="flex gap-2">
+        <Submit />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setOpen(false)}
+        >
+          Annuler
+        </Button>
+      </div>
+    </form>
   );
 }

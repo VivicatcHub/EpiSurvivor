@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Spectral } from "next/font/google";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { getUser } from "@/lib/dal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -45,14 +46,18 @@ export const viewport: Viewport = {
   themeColor: "#1B3A6B",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Une seule lecture de session par rendu (`cache` dans lib/dal.ts) ; sans
+  // cookie, aucun appel réseau n'est émis — le visiteur anonyme ne paie rien.
+  const user = await getUser();
+
   return (
     <html
       lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} ${spectral.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
+        <SiteHeader user={user} />
         {children}
         <SiteFooter />
       </body>

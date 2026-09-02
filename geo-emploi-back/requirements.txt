@@ -1,8 +1,8 @@
 fastapi
 uvicorn[standard]
 sqlmodel
+psycopg2-binary
+python-dotenv
 python-jose[cryptography]
 pwdlib[argon2]
 email-validator
-psycopg2-binary
-python-dotenv

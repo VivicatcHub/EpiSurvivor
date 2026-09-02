@@ -1,8 +1,50 @@
-export type Role = "chercheur" | "employeur" | "admin";
+/**
+ * Contrat de l'API GéoEmploi.
+ *
+ * Les valeurs sont celles de la base (`job_seeker`, `permanent`, `in_review`…)
+ * et non des libellés français : le backend renvoie exactement ces chaînes,
+ * l'affichage passe par `lib/labels.ts`. Un seul vocabulaire de bout en bout,
+ * une seule table de traduction, à la frontière de l'écran.
+ *
+ * Côté serveur, `app/schemas.py` décrit les mêmes objets en camelCase.
+ */
 
-export type ContractType = "CDI" | "CDD" | "Alternance" | "Stage" | "Freelance";
+export type Role = "job_seeker" | "employer" | "admin";
 
-export type ListingStatus = "publiee" | "en_attente" | "signalee" | "archivee";
+export type ContractType =
+  | "permanent"
+  | "fixed_term"
+  | "temp_agency"
+  | "internship"
+  | "apprenticeship"
+  | "freelance";
+
+export type ListingStatus =
+  | "publiee"
+  | "en_attente"
+  | "signalee"
+  | "archivee"
+  | "refusee";
+
+export type AccountStatus = "active" | "suspended";
+
+export type ApplicationStatus =
+  | "sent"
+  | "viewed"
+  | "in_review"
+  | "accepted"
+  | "rejected";
+
+export type SubscriptionPlan = "none" | "standard" | "premium";
+
+export type SessionUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: AccountStatus;
+  createdAt: string;
+};
 
 export type Listing = {
   id: string;
@@ -24,11 +66,11 @@ export type Listing = {
   lng: number;
 };
 
-export type ApplicationStatus = "envoyee" | "vue" | "entretien" | "refusee";
-
 export type Application = {
   id: string;
   listingId: string;
+  listingTitle: string;
+  listingCompany: string;
   seekerId: string;
   seekerName: string;
   message: string;
@@ -63,8 +105,6 @@ export type SeekerProfile = {
   caught: number;
 };
 
-export type SubscriptionPlan = "aucun" | "standard" | "premium";
-
 export type Company = {
   id: string;
   name: string;
@@ -75,10 +115,8 @@ export type Company = {
   plan: SubscriptionPlan;
   planPrice: number;
   radiusKm: number;
-  subscribedSince: string;
+  subscribedSince: string | null;
 };
-
-export type AccountStatus = "actif" | "suspendu" | "en_attente";
 
 export type UserAccount = {
   id: string;
@@ -87,6 +125,23 @@ export type UserAccount = {
   role: Role;
   status: AccountStatus;
   createdAt: string;
+};
+
+export type OfferReport = {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  reason: string;
+  status: "open" | "reviewed" | "dismissed";
+  createdAt: string;
+};
+
+export type Metrics = {
+  publishedListings: number;
+  pendingListings: number;
+  reportedListings: number;
+  accounts: number;
+  applications: number;
 };
 
 export type BoundsBox = {

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Lancement du backend seul, contre la base de geo-emploi-db.
+# Pour la pile complete (base + migrations + API + front), voir compose.yaml
+# a la racine du depot.
 set -euo pipefail
 
 cd "$(dirname "$0")"

@@ -1,0 +1,1143 @@
+{
+  "companies": [
+    {
+      "key": "c1",
+      "name": "Rhône Numérique",
+      "city": "Lyon"
+    },
+    {
+      "key": "c2",
+      "name": "Ministère du Job et Bonheur",
+      "city": "Paris"
+    },
+    {
+      "key": "c3",
+      "name": "Brasserie du Vieux-Port",
+      "city": "Marseille"
+    },
+    {
+      "key": "c4",
+      "name": "Toulouse Aéro Systems",
+      "city": "Toulouse"
+    },
+    {
+      "key": "c5",
+      "name": "Nord Industries",
+      "city": "Lille"
+    },
+    {
+      "key": "c6",
+      "name": "Nantes Express",
+      "city": "Nantes"
+    },
+    {
+      "key": "c7",
+      "name": "Strasbourg SecOps",
+      "city": "Strasbourg"
+    },
+    {
+      "key": "c8",
+      "name": "Résidence Les Tilleuls",
+      "city": "Rennes"
+    },
+    {
+      "key": "c9",
+      "name": "Fournil Saint-Michel",
+      "city": "Bordeaux"
+    },
+    {
+      "key": "c10",
+      "name": "Laiterie du Bocage",
+      "city": "Laval"
+    },
+    {
+      "key": "c11",
+      "name": "Métropole Grand Ouest",
+      "city": "Nantes"
+    },
+    {
+      "key": "c12",
+      "name": "Centre hospitalier de Grenoble-Sud",
+      "city": "Grenoble"
+    },
+    {
+      "key": "c13",
+      "name": "Vallée Logicielle",
+      "city": "Grenoble"
+    },
+    {
+      "key": "c14",
+      "name": "Banque Populaire du Ponant",
+      "city": "Brest"
+    },
+    {
+      "key": "c15",
+      "name": "Domaine des Coteaux Clairs",
+      "city": "Beaune"
+    },
+    {
+      "key": "c16",
+      "name": "Rectorat de Nancy-Metz",
+      "city": "Nancy"
+    },
+    {
+      "key": "c17",
+      "name": "Réseaux Est Connect",
+      "city": "Metz"
+    },
+    {
+      "key": "c18",
+      "name": "Cuisine centrale de Clermont",
+      "city": "Clermont-Ferrand"
+    },
+    {
+      "key": "c19",
+      "name": "Occitanie Data",
+      "city": "Toulouse"
+    },
+    {
+      "key": "c20",
+      "name": "Office de tourisme du Pays basque",
+      "city": "Bayonne"
+    },
+    {
+      "key": "c21",
+      "name": "Transports Vallée du Rhône",
+      "city": "Valence"
+    },
+    {
+      "key": "c22",
+      "name": "Studio Marée Haute",
+      "city": "La Rochelle"
+    },
+    {
+      "key": "c23",
+      "name": "Atelier Bois du Perche",
+      "city": "Chartres"
+    },
+    {
+      "key": "c24",
+      "name": "Pharmacie du Théâtre",
+      "city": "Dijon"
+    },
+    {
+      "key": "c25",
+      "name": "Agglomération Sud Alsace",
+      "city": "Mulhouse"
+    },
+    {
+      "key": "c26",
+      "name": "Logistique Beauce",
+      "city": "Orléans"
+    },
+    {
+      "key": "c27",
+      "name": "Nouvelle-Aquitaine Systèmes",
+      "city": "Bordeaux"
+    },
+    {
+      "key": "c28",
+      "name": "Crèche municipale Les Bruyères",
+      "city": "Amiens"
+    },
+    {
+      "key": "c29",
+      "name": "Chaudronnerie du Golfe",
+      "city": "Lorient"
+    },
+    {
+      "key": "c30",
+      "name": "Marché Provence Frais",
+      "city": "Nîmes"
+    },
+    {
+      "key": "c31",
+      "name": "Alpes Énergie Mobilité",
+      "city": "Chambéry"
+    },
+    {
+      "key": "c32",
+      "name": "Salon Rive Gauche",
+      "city": "Tours"
+    },
+    {
+      "key": "c33",
+      "name": "Groupe Hôtelier Littoral",
+      "city": "Toulon"
+    },
+    {
+      "key": "c34",
+      "name": "Association Horizon Nord",
+      "city": "Lille"
+    },
+    {
+      "key": "c35",
+      "name": "Mer & Code",
+      "city": "Nantes"
+    },
+    {
+      "key": "c36",
+      "name": "Ville de Perpignan",
+      "city": "Perpignan"
+    },
+    {
+      "key": "c37",
+      "name": "Coopérative Champagne Ardenne",
+      "city": "Reims"
+    },
+    {
+      "key": "c38",
+      "name": "Laboratoire d'analyses Loire Santé",
+      "city": "Saint-Étienne"
+    },
+    {
+      "key": "c39",
+      "name": "Mission locale Côte d'Azur",
+      "city": "Nice"
+    },
+    {
+      "key": "c40",
+      "name": "TP Grand Sud-Ouest",
+      "city": "Tarbes"
+    },
+    {
+      "key": "c41",
+      "name": "Laboratoires Val de Seine",
+      "city": "Rouen"
+    },
+    {
+      "key": "c42",
+      "name": "Refuge des Aravis",
+      "city": "Annecy"
+    }
+  ],
+  "offers": [
+    {
+      "companyKey": "c1",
+      "title": "Développeur·se front-end React",
+      "contract": "permanent",
+      "salary": "42 000 € / an",
+      "description": "Vous rejoignez l'équipe produit pour construire les interfaces de nos outils pédagogiques. Stack Next.js, TypeScript et Tailwind.",
+      "skills": [
+        "React",
+        "TypeScript",
+        "Next.js",
+        "Tailwind"
+      ],
+      "address": "196 rue Garibaldi",
+      "city": "Lyon",
+      "postalCode": "69003",
+      "radiusKm": 15,
+      "lat": 45.74634,
+      "lng": 4.835144,
+      "views": 412,
+      "status": "publiee",
+      "daysAgo": 4
+    },
+    {
+      "companyKey": "c2",
+      "title": "Chargé·e de recrutement terrain",
+      "contract": "fixed_term",
+      "salary": "2 300 € / mois",
+      "description": "Accompagnement des chercheurs d'emploi sur le terrain, animation des permanences et suivi des candidatures déposées via GéoEmploi.",
+      "skills": [
+        "Relation client",
+        "Écoute active",
+        "Reporting"
+      ],
+      "address": "127 rue de Grenelle",
+      "city": "Paris",
+      "postalCode": "75007",
+      "radiusKm": 25,
+      "lat": 48.856614,
+      "lng": 2.312222,
+      "views": 1287,
+      "status": "publiee",
+      "daysAgo": 2
+    },
+    {
+      "companyKey": "c3",
+      "title": "Serveur·se en salle",
+      "contract": "permanent",
+      "salary": "1 900 € / mois",
+      "description": "Service du midi et du soir en terrasse. Équipe de huit personnes, deux jours de repos consécutifs.",
+      "skills": [
+        "Service",
+        "Encaissement",
+        "Anglais"
+      ],
+      "address": "12 quai du Port",
+      "city": "Marseille",
+      "postalCode": "13002",
+      "radiusKm": 10,
+      "lat": 43.295361,
+      "lng": 5.370639,
+      "views": 233,
+      "status": "publiee",
+      "daysAgo": 7
+    },
+    {
+      "companyKey": "c4",
+      "title": "Alternant·e data analyst",
+      "contract": "apprenticeship",
+      "salary": "1 100 € / mois",
+      "description": "Construction des tableaux de bord de production et fiabilisation des indicateurs qualité. Rythme trois semaines en entreprise, une à l'école.",
+      "skills": [
+        "SQL",
+        "Python",
+        "Power BI"
+      ],
+      "address": "16 avenue Didier Daurat",
+      "city": "Toulouse",
+      "postalCode": "31400",
+      "radiusKm": 20,
+      "lat": 43.585,
+      "lng": 1.4665,
+      "views": 96,
+      "status": "publiee",
+      "daysAgo": 11
+    },
+    {
+      "companyKey": "c5",
+      "title": "Technicien·ne de maintenance",
+      "contract": "permanent",
+      "salary": "2 600 € / mois",
+      "description": "Maintenance préventive et curative des lignes d'assemblage. Astreinte une semaine sur quatre, prime incluse.",
+      "skills": [
+        "Électrotechnique",
+        "Hydraulique",
+        "GMAO"
+      ],
+      "address": "40 rue de Tournai",
+      "city": "Lille",
+      "postalCode": "59000",
+      "radiusKm": 30,
+      "lat": 50.6365,
+      "lng": 3.0635,
+      "views": 174,
+      "status": "publiee",
+      "daysAgo": 14
+    },
+    {
+      "companyKey": "c1",
+      "title": "Stage UX/UI mobile",
+      "contract": "internship",
+      "salary": "Gratification légale",
+      "description": "Refonte du parcours de candidature mobile : recherche utilisateur, maquettes et tests d'usage sur le terrain.",
+      "skills": [
+        "Figma",
+        "Prototypage",
+        "Tests utilisateurs"
+      ],
+      "address": "2 place de la Bourse",
+      "city": "Bordeaux",
+      "postalCode": "33000",
+      "radiusKm": 12,
+      "lat": 44.841225,
+      "lng": -0.57,
+      "views": 58,
+      "status": "publiee",
+      "daysAgo": 3
+    },
+    {
+      "companyKey": "c6",
+      "title": "Livreur·se à vélo — 25 h",
+      "contract": "fixed_term",
+      "salary": "1 400 € / mois",
+      "description": "Livraison de colis en centre-ville, vélo cargo fourni. Contrat de six mois renouvelable.",
+      "skills": [
+        "Permis B apprécié",
+        "Sens de l'orientation"
+      ],
+      "address": "5 allée Baco",
+      "city": "Nantes",
+      "postalCode": "44000",
+      "radiusKm": 8,
+      "lat": 47.2145,
+      "lng": -1.5525,
+      "views": 12,
+      "status": "en_attente",
+      "daysAgo": 1
+    },
+    {
+      "companyKey": "c7",
+      "title": "Consultant·e indépendant·e cybersécurité",
+      "contract": "freelance",
+      "salary": "550 € / jour",
+      "description": "Audit de conformité et durcissement de postes clients. Mission de quatre mois, deux jours sur site.",
+      "skills": [
+        "Pentest",
+        "ISO 27001",
+        "Linux"
+      ],
+      "address": "1 place de la Gare",
+      "city": "Strasbourg",
+      "postalCode": "67000",
+      "radiusKm": 40,
+      "lat": 48.585,
+      "lng": 7.735,
+      "views": 341,
+      "status": "signalee",
+      "daysAgo": 20
+    },
+    {
+      "companyKey": "c8",
+      "title": "Aide-soignant·e de nuit",
+      "contract": "permanent",
+      "salary": "2 150 € / mois",
+      "description": "Accompagnement de 42 résidents en EHPAD, nuits de 10 heures, une semaine sur deux en binôme. Reprise d'ancienneté intégrale.",
+      "skills": [
+        "Soins d'hygiène",
+        "Travail de nuit",
+        "Bientraitance"
+      ],
+      "address": "18 rue Pasteur",
+      "city": "Rennes",
+      "postalCode": "35000",
+      "radiusKm": 15,
+      "lat": 48.1173,
+      "lng": -1.6778,
+      "views": 187,
+      "status": "publiee",
+      "daysAgo": 5
+    },
+    {
+      "companyKey": "c9",
+      "title": "Boulanger·ère",
+      "contract": "permanent",
+      "salary": "2 000 € / mois",
+      "description": "Pétrissage et façonnage sur levain, fournées de 4 h à 11 h. Fermeture le dimanche après-midi et le lundi.",
+      "skills": [
+        "Panification",
+        "Levain",
+        "Hygiène HACCP"
+      ],
+      "address": "9 place Saint-Michel",
+      "city": "Bordeaux",
+      "postalCode": "33000",
+      "radiusKm": 10,
+      "lat": 44.833,
+      "lng": -0.568,
+      "views": 143,
+      "status": "publiee",
+      "daysAgo": 6
+    },
+    {
+      "companyKey": "c10",
+      "title": "Conducteur·rice de ligne agroalimentaire",
+      "contract": "permanent",
+      "salary": "2 250 € / mois",
+      "description": "Pilotage d'une ligne de conditionnement, réglages et contrôle qualité en 2x8. Prime d'équipe et intéressement.",
+      "skills": [
+        "Conduite de ligne",
+        "Qualité",
+        "2x8"
+      ],
+      "address": "12 route de Vitré",
+      "city": "Laval",
+      "postalCode": "53000",
+      "radiusKm": 25,
+      "lat": 48.07,
+      "lng": -0.77,
+      "views": 98,
+      "status": "publiee",
+      "daysAgo": 8
+    },
+    {
+      "companyKey": "c11",
+      "title": "Chef·fe de projet mobilités douces",
+      "contract": "fixed_term",
+      "salary": "3 100 € / mois",
+      "description": "Pilotage du plan vélo intercommunal : concertation, marchés publics, suivi de chantier. CDD de 36 mois.",
+      "skills": [
+        "Marchés publics",
+        "Concertation",
+        "Aménagement"
+      ],
+      "address": "2 cours des 50-Otages",
+      "city": "Nantes",
+      "postalCode": "44000",
+      "radiusKm": 30,
+      "lat": 47.216,
+      "lng": -1.556,
+      "views": 264,
+      "status": "publiee",
+      "daysAgo": 3
+    },
+    {
+      "companyKey": "c12",
+      "title": "Infirmier·ère en soins généraux",
+      "contract": "permanent",
+      "salary": "2 480 € / mois",
+      "description": "Service de médecine polyvalente, 12 heures, roulement fixe communiqué trois mois à l'avance. Crèche d'entreprise.",
+      "skills": [
+        "Soins",
+        "Urgences",
+        "Travail en équipe"
+      ],
+      "address": "38 avenue Marcelin Berthelot",
+      "city": "Grenoble",
+      "postalCode": "38100",
+      "radiusKm": 20,
+      "lat": 45.175,
+      "lng": 5.73,
+      "views": 412,
+      "status": "publiee",
+      "daysAgo": 2
+    },
+    {
+      "companyKey": "c13",
+      "title": "Développeur·se back-end Java",
+      "contract": "permanent",
+      "salary": "48 000 € / an",
+      "description": "Reprise et modernisation d'une plateforme de gestion de flotte : Java 21, Spring Boot, PostgreSQL. Deux jours de télétravail.",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "PostgreSQL",
+        "Docker"
+      ],
+      "address": "5 rue Félix Poulat",
+      "city": "Grenoble",
+      "postalCode": "38000",
+      "radiusKm": 25,
+      "lat": 45.1885,
+      "lng": 5.7245,
+      "views": 356,
+      "status": "publiee",
+      "daysAgo": 4
+    },
+    {
+      "companyKey": "c14",
+      "title": "Chargé·e de clientèle bancaire",
+      "contract": "permanent",
+      "salary": "2 400 € / mois",
+      "description": "Portefeuille de particuliers en agence de centre-ville. Parcours de formation de six semaines à l'embauche.",
+      "skills": [
+        "Relation client",
+        "Épargne",
+        "Conseil"
+      ],
+      "address": "24 rue du Château",
+      "city": "Brest",
+      "postalCode": "29200",
+      "radiusKm": 15,
+      "lat": 48.388,
+      "lng": -4.49,
+      "views": 121,
+      "status": "publiee",
+      "daysAgo": 10
+    },
+    {
+      "companyKey": "c15",
+      "title": "Ouvrier·ère viticole",
+      "contract": "fixed_term",
+      "salary": "1 850 € / mois",
+      "description": "Travaux de la vigne et vendanges : palissage, ébourgeonnage, tri. Contrat saisonnier de sept mois, logement possible.",
+      "skills": [
+        "Travaux de la vigne",
+        "Sécateur",
+        "Permis B"
+      ],
+      "address": "3 chemin des Vignes",
+      "city": "Beaune",
+      "postalCode": "21200",
+      "radiusKm": 20,
+      "lat": 47.025,
+      "lng": 4.838,
+      "views": 76,
+      "status": "publiee",
+      "daysAgo": 13
+    },
+    {
+      "companyKey": "c16",
+      "title": "Professeur·e de mathématiques (remplacement)",
+      "contract": "fixed_term",
+      "salary": "2 100 € / mois",
+      "description": "Remplacement en collège, 18 heures hebdomadaires, du 15 septembre aux vacances de printemps. Tutorat assuré.",
+      "skills": [
+        "Mathématiques",
+        "Pédagogie",
+        "Collège"
+      ],
+      "address": "9 rue Sainte-Catherine",
+      "city": "Nancy",
+      "postalCode": "54000",
+      "radiusKm": 30,
+      "lat": 48.6921,
+      "lng": 6.1844,
+      "views": 88,
+      "status": "publiee",
+      "daysAgo": 1
+    },
+    {
+      "companyKey": "c17",
+      "title": "Technicien·ne fibre optique",
+      "contract": "permanent",
+      "salary": "2 200 € / mois",
+      "description": "Raccordement d'abonnés en habitat collectif et pavillonnaire. Véhicule de service et outillage fournis.",
+      "skills": [
+        "Raccordement",
+        "Soudure fibre",
+        "Permis B"
+      ],
+      "address": "14 rue des Jardiniers",
+      "city": "Metz",
+      "postalCode": "57000",
+      "radiusKm": 35,
+      "lat": 49.1193,
+      "lng": 6.1757,
+      "views": 134,
+      "status": "publiee",
+      "daysAgo": 7
+    },
+    {
+      "companyKey": "c18",
+      "title": "Cuisinier·ère de collectivité",
+      "contract": "permanent",
+      "salary": "2 050 € / mois",
+      "description": "Production de 1 800 repas par jour pour les écoles de l'agglomération. Horaires en journée, week-ends libres.",
+      "skills": [
+        "Cuisine collective",
+        "HACCP",
+        "Liaison froide"
+      ],
+      "address": "27 rue Fontgiève",
+      "city": "Clermont-Ferrand",
+      "postalCode": "63000",
+      "radiusKm": 20,
+      "lat": 45.783,
+      "lng": 3.077,
+      "views": 109,
+      "status": "publiee",
+      "daysAgo": 9
+    },
+    {
+      "companyKey": "c19",
+      "title": "Data engineer",
+      "contract": "permanent",
+      "salary": "52 000 € / an",
+      "description": "Industrialisation des pipelines de données de mobilité régionale : Airflow, dbt, BigQuery. Télétravail à 60 %.",
+      "skills": [
+        "Python",
+        "Airflow",
+        "dbt",
+        "SQL"
+      ],
+      "address": "31 allée Jean Jaurès",
+      "city": "Toulouse",
+      "postalCode": "31000",
+      "radiusKm": 25,
+      "lat": 43.606,
+      "lng": 1.448,
+      "views": 298,
+      "status": "publiee",
+      "daysAgo": 2
+    },
+    {
+      "companyKey": "c20",
+      "title": "Agent·e d'accueil et de médiation",
+      "contract": "fixed_term",
+      "salary": "1 950 € / mois",
+      "description": "Accueil des visiteurs, billetterie et animation de visites guidées. Bilingue français-espagnol apprécié.",
+      "skills": [
+        "Accueil",
+        "Espagnol",
+        "Médiation"
+      ],
+      "address": "1 place des Basques",
+      "city": "Bayonne",
+      "postalCode": "64100",
+      "radiusKm": 15,
+      "lat": 43.4933,
+      "lng": -1.4748,
+      "views": 152,
+      "status": "publiee",
+      "daysAgo": 5
+    },
+    {
+      "companyKey": "c21",
+      "title": "Mécanicien·ne poids lourds",
+      "contract": "permanent",
+      "salary": "2 500 € / mois",
+      "description": "Entretien et réparation d'une flotte de 60 porteurs. Atelier neuf, formation constructeur prise en charge.",
+      "skills": [
+        "Mécanique PL",
+        "Diagnostic",
+        "Hydraulique"
+      ],
+      "address": "8 zone des Auréats",
+      "city": "Valence",
+      "postalCode": "26000",
+      "radiusKm": 25,
+      "lat": 44.925,
+      "lng": 4.908,
+      "views": 87,
+      "status": "publiee",
+      "daysAgo": 12
+    },
+    {
+      "companyKey": "c22",
+      "title": "Community manager",
+      "contract": "fixed_term",
+      "salary": "2 200 € / mois",
+      "description": "Animation des réseaux d'une marque de nautisme : ligne éditoriale, tournage court format, reporting mensuel.",
+      "skills": [
+        "Réseaux sociaux",
+        "Montage vidéo",
+        "Rédaction"
+      ],
+      "address": "6 quai Duperré",
+      "city": "La Rochelle",
+      "postalCode": "17000",
+      "radiusKm": 15,
+      "lat": 46.159,
+      "lng": -1.152,
+      "views": 203,
+      "status": "publiee",
+      "daysAgo": 3
+    },
+    {
+      "companyKey": "c23",
+      "title": "Menuisier·ère poseur·se",
+      "contract": "permanent",
+      "salary": "2 300 € / mois",
+      "description": "Pose de menuiseries bois et aluminium chez des particuliers, chantiers dans un rayon de 50 km. Panier repas.",
+      "skills": [
+        "Pose",
+        "Lecture de plans",
+        "Permis B"
+      ],
+      "address": "22 rue de la Herse",
+      "city": "Chartres",
+      "postalCode": "28000",
+      "radiusKm": 40,
+      "lat": 48.447,
+      "lng": 1.489,
+      "views": 64,
+      "status": "publiee",
+      "daysAgo": 11
+    },
+    {
+      "companyKey": "c24",
+      "title": "Pharmacien·ne adjoint·e",
+      "contract": "permanent",
+      "salary": "3 400 € / mois",
+      "description": "Officine de centre-ville, équipe de sept personnes. Un samedi sur trois travaillé, pas de garde de nuit.",
+      "skills": [
+        "Délivrance",
+        "Conseil officinal",
+        "Vaccination"
+      ],
+      "address": "4 place du Théâtre",
+      "city": "Dijon",
+      "postalCode": "21000",
+      "radiusKm": 12,
+      "lat": 47.322,
+      "lng": 5.0415,
+      "views": 96,
+      "status": "publiee",
+      "daysAgo": 6
+    },
+    {
+      "companyKey": "c25",
+      "title": "Chargé·e de mission transition énergétique",
+      "contract": "fixed_term",
+      "salary": "2 900 € / mois",
+      "description": "Animation du programme de rénovation des bâtiments publics : diagnostics, plan de financement, suivi des travaux.",
+      "skills": [
+        "Énergie",
+        "Collectivités",
+        "Gestion de projet"
+      ],
+      "address": "2 rue Pierre et Marie Curie",
+      "city": "Mulhouse",
+      "postalCode": "68100",
+      "radiusKm": 30,
+      "lat": 47.7508,
+      "lng": 7.3359,
+      "views": 118,
+      "status": "publiee",
+      "daysAgo": 8
+    },
+    {
+      "companyKey": "c26",
+      "title": "Préparateur·rice de commandes",
+      "contract": "fixed_term",
+      "salary": "1 890 € / mois",
+      "description": "Préparation vocale sur entrepôt frais, équipe du matin. CACES 1 financé pour les profils débutants.",
+      "skills": [
+        "CACES 1",
+        "Préparation",
+        "Travail au froid"
+      ],
+      "address": "5 rue de l'Europe",
+      "city": "Orléans",
+      "postalCode": "45000",
+      "radiusKm": 25,
+      "lat": 47.9029,
+      "lng": 1.9093,
+      "views": 210,
+      "status": "publiee",
+      "daysAgo": 1
+    },
+    {
+      "companyKey": "c27",
+      "title": "Architecte logiciel",
+      "contract": "permanent",
+      "salary": "62 000 € / an",
+      "description": "Cadrage technique du futur portail citoyen régional : architecture hexagonale, API publiques, souveraineté des données.",
+      "skills": [
+        "Architecture",
+        "API",
+        "Kubernetes",
+        "Sécurité"
+      ],
+      "address": "10 cours du Chapeau Rouge",
+      "city": "Bordeaux",
+      "postalCode": "33000",
+      "radiusKm": 30,
+      "lat": 44.842,
+      "lng": -0.575,
+      "views": 274,
+      "status": "publiee",
+      "daysAgo": 4
+    },
+    {
+      "companyKey": "c28",
+      "title": "Auxiliaire de puériculture",
+      "contract": "permanent",
+      "salary": "2 000 € / mois",
+      "description": "Section des grands, 18 enfants, équipe de cinq. Poste ouvert aux titulaires du diplôme d'État.",
+      "skills": [
+        "Petite enfance",
+        "Éveil",
+        "Hygiène"
+      ],
+      "address": "11 rue des Bruyères",
+      "city": "Amiens",
+      "postalCode": "80000",
+      "radiusKm": 15,
+      "lat": 49.8941,
+      "lng": 2.2958,
+      "views": 73,
+      "status": "publiee",
+      "daysAgo": 7
+    },
+    {
+      "companyKey": "c29",
+      "title": "Soudeur·se TIG",
+      "contract": "permanent",
+      "salary": "2 450 € / mois",
+      "description": "Soudure TIG inox sur pièces unitaires pour la construction navale. Licence de soudage prise en charge.",
+      "skills": [
+        "TIG",
+        "Inox",
+        "Lecture de plans"
+      ],
+      "address": "3 rue de Belgique",
+      "city": "Lorient",
+      "postalCode": "56100",
+      "radiusKm": 25,
+      "lat": 47.7477,
+      "lng": -3.3702,
+      "views": 81,
+      "status": "publiee",
+      "daysAgo": 10
+    },
+    {
+      "companyKey": "c30",
+      "title": "Responsable de rayon fruits et légumes",
+      "contract": "permanent",
+      "salary": "2 350 € / mois",
+      "description": "Gestion des commandes, de la casse et de l'équipe de trois personnes. Prise de poste à 5 h, samedi travaillé.",
+      "skills": [
+        "Gestion de rayon",
+        "Commande",
+        "Management"
+      ],
+      "address": "40 avenue Jean Jaurès",
+      "city": "Nîmes",
+      "postalCode": "30000",
+      "radiusKm": 20,
+      "lat": 43.8367,
+      "lng": 4.3601,
+      "views": 105,
+      "status": "publiee",
+      "daysAgo": 5
+    },
+    {
+      "companyKey": "c31",
+      "title": "Ingénieur·e essais batteries",
+      "contract": "permanent",
+      "salary": "46 000 € / an",
+      "description": "Conception et exploitation des bancs d'essais cellules : plans d'expérience, instrumentation, analyse des données.",
+      "skills": [
+        "Essais",
+        "Python",
+        "Électrochimie"
+      ],
+      "address": "7 avenue de la Plaine",
+      "city": "Chambéry",
+      "postalCode": "73000",
+      "radiusKm": 25,
+      "lat": 45.5646,
+      "lng": 5.9178,
+      "views": 167,
+      "status": "publiee",
+      "daysAgo": 2
+    },
+    {
+      "companyKey": "c32",
+      "title": "Coiffeur·se",
+      "contract": "permanent",
+      "salary": "1 950 € / mois",
+      "description": "Salon mixte de six postes, clientèle fidèle. Formation coloration végétale prise en charge la première année.",
+      "skills": [
+        "Coupe",
+        "Coloration",
+        "Conseil"
+      ],
+      "address": "17 rue Nationale",
+      "city": "Tours",
+      "postalCode": "37000",
+      "radiusKm": 10,
+      "lat": 47.3941,
+      "lng": 0.6848,
+      "views": 59,
+      "status": "publiee",
+      "daysAgo": 9
+    },
+    {
+      "companyKey": "c33",
+      "title": "Contrôleur·se de gestion",
+      "contract": "permanent",
+      "salary": "3 200 € / mois",
+      "description": "Suivi budgétaire de neuf établissements, clôtures mensuelles et construction du budget annuel.",
+      "skills": [
+        "Contrôle de gestion",
+        "Excel",
+        "ERP"
+      ],
+      "address": "12 boulevard de Strasbourg",
+      "city": "Toulon",
+      "postalCode": "83000",
+      "radiusKm": 20,
+      "lat": 43.1242,
+      "lng": 5.928,
+      "views": 92,
+      "status": "publiee",
+      "daysAgo": 6
+    },
+    {
+      "companyKey": "c34",
+      "title": "Éducateur·rice spécialisé·e",
+      "contract": "fixed_term",
+      "salary": "2 250 € / mois",
+      "description": "Accompagnement de jeunes majeurs en logement diffus. Astreinte téléphonique une semaine sur cinq.",
+      "skills": [
+        "Accompagnement social",
+        "Écrits professionnels",
+        "Permis B"
+      ],
+      "address": "5 rue Solférino",
+      "city": "Lille",
+      "postalCode": "59000",
+      "radiusKm": 25,
+      "lat": 50.625,
+      "lng": 3.058,
+      "views": 128,
+      "status": "publiee",
+      "daysAgo": 3
+    },
+    {
+      "companyKey": "c35",
+      "title": "Développeur·se mobile Flutter",
+      "contract": "freelance",
+      "salary": "480 € / jour",
+      "description": "Refonte de l'application d'un armateur : suivi de traversées, billetterie, mode hors-ligne. Mission de six mois.",
+      "skills": [
+        "Flutter",
+        "Dart",
+        "REST"
+      ],
+      "address": "14 quai de la Fosse",
+      "city": "Nantes",
+      "postalCode": "44000",
+      "radiusKm": 30,
+      "lat": 47.2075,
+      "lng": -1.568,
+      "views": 189,
+      "status": "publiee",
+      "daysAgo": 1
+    },
+    {
+      "companyKey": "c36",
+      "title": "Agent·e d'entretien des espaces verts",
+      "contract": "fixed_term",
+      "salary": "1 880 € / mois",
+      "description": "Entretien des parcs municipaux, taille et arrosage raisonné. Contrat de neuf mois, prise de poste à 6 h l'été.",
+      "skills": [
+        "Espaces verts",
+        "Taille",
+        "Permis B"
+      ],
+      "address": "1 place de la Loge",
+      "city": "Perpignan",
+      "postalCode": "66000",
+      "radiusKm": 15,
+      "lat": 42.6887,
+      "lng": 2.8948,
+      "views": 67,
+      "status": "publiee",
+      "daysAgo": 12
+    },
+    {
+      "companyKey": "c37",
+      "title": "Assistant·e ressources humaines",
+      "contract": "apprenticeship",
+      "salary": "1 050 € / mois",
+      "description": "Gestion administrative du personnel, préparation de la paie et suivi du plan de formation. Master RH en alternance.",
+      "skills": [
+        "Paie",
+        "Administration du personnel",
+        "Excel"
+      ],
+      "address": "8 rue de Mars",
+      "city": "Reims",
+      "postalCode": "51100",
+      "radiusKm": 20,
+      "lat": 49.2583,
+      "lng": 4.0317,
+      "views": 84,
+      "status": "publiee",
+      "daysAgo": 4
+    },
+    {
+      "companyKey": "c38",
+      "title": "Technicien·ne de laboratoire",
+      "contract": "permanent",
+      "salary": "2 150 € / mois",
+      "description": "Analyses de biologie médicale de routine, prélèvements au plateau technique. Un samedi matin sur quatre.",
+      "skills": [
+        "Biologie médicale",
+        "Prélèvement",
+        "Qualité ISO"
+      ],
+      "address": "6 rue de la Résistance",
+      "city": "Saint-Étienne",
+      "postalCode": "42000",
+      "radiusKm": 20,
+      "lat": 45.4397,
+      "lng": 4.3872,
+      "views": 71,
+      "status": "publiee",
+      "daysAgo": 8
+    },
+    {
+      "companyKey": "c39",
+      "title": "Conseiller·ère en insertion professionnelle",
+      "contract": "fixed_term",
+      "salary": "2 180 € / mois",
+      "description": "Accompagnement de jeunes de 16 à 25 ans : diagnostic, mise en relation employeurs, suivi du contrat d'engagement.",
+      "skills": [
+        "Insertion",
+        "Entretien",
+        "Réseau partenaires"
+      ],
+      "address": "22 avenue Thiers",
+      "city": "Nice",
+      "postalCode": "06000",
+      "radiusKm": 20,
+      "lat": 43.7102,
+      "lng": 7.262,
+      "views": 156,
+      "status": "publiee",
+      "daysAgo": 2
+    },
+    {
+      "companyKey": "c40",
+      "title": "Chef·fe d'équipe travaux publics",
+      "contract": "permanent",
+      "salary": "2 800 € / mois",
+      "description": "Encadrement d'une équipe de cinq compagnons sur des chantiers de voirie. Véhicule et téléphone fournis.",
+      "skills": [
+        "Encadrement",
+        "Voirie",
+        "Sécurité chantier"
+      ],
+      "address": "19 avenue de Pau",
+      "city": "Tarbes",
+      "postalCode": "65000",
+      "radiusKm": 40,
+      "lat": 43.233,
+      "lng": 0.078,
+      "views": 62,
+      "status": "publiee",
+      "daysAgo": 11
+    },
+    {
+      "companyKey": "c2",
+      "title": "Chargé·e de communication numérique",
+      "contract": "fixed_term",
+      "salary": "2 600 € / mois",
+      "description": "Production des contenus du service GéoEmploi : fiches pratiques, vidéos courtes, suivi de l'audience.",
+      "skills": [
+        "Rédaction",
+        "Vidéo",
+        "Analytics"
+      ],
+      "address": "127 rue de Grenelle",
+      "city": "Paris",
+      "postalCode": "75007",
+      "radiusKm": 25,
+      "lat": 48.857,
+      "lng": 2.315,
+      "views": 431,
+      "status": "publiee",
+      "daysAgo": 1
+    },
+    {
+      "companyKey": "c41",
+      "title": "Opérateur·rice de production pharmaceutique",
+      "contract": "permanent",
+      "salary": "2 200 € / mois",
+      "description": "Conduite d'équipements de répartition en zone à atmosphère contrôlée, en 2x8. Formation aux BPF assurée.",
+      "skills": [
+        "BPF",
+        "Zone contrôlée",
+        "2x8"
+      ],
+      "address": "3 rue du Docteur Blanche",
+      "city": "Rouen",
+      "postalCode": "76000",
+      "radiusKm": 25,
+      "lat": 49.4432,
+      "lng": 1.0999,
+      "views": 94,
+      "status": "publiee",
+      "daysAgo": 6
+    },
+    {
+      "companyKey": "c42",
+      "title": "Serveur·se en restauration d'altitude",
+      "contract": "fixed_term",
+      "salary": "2 000 € / mois",
+      "description": "Saison d'hiver en service midi et soir, 60 couverts. Logement et repas fournis, prime de fin de saison.",
+      "skills": [
+        "Service",
+        "Saison",
+        "Travail en équipe"
+      ],
+      "address": "Route du Col",
+      "city": "Annecy",
+      "postalCode": "74000",
+      "radiusKm": 30,
+      "lat": 45.8992,
+      "lng": 6.1294,
+      "views": 118,
+      "status": "publiee",
+      "daysAgo": 5
+    }
+  ]
+}

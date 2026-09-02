@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { ApplicationStatusForm } from "@/components/employer/application-status-form";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -14,31 +15,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  COMPANY,
-  getApplicationsForCompany,
+  getCompany,
   getCompanyListings,
-  getListing,
-} from "@/lib/mock-data";
-import type { ListingStatus } from "@/lib/schemas";
+  getReceivedApplications,
+} from "@/lib/api/account";
+import { requireRole } from "@/lib/dal";
+import { LISTING_STATUS_LABELS, formatDate } from "@/lib/labels";
 
 export const metadata = { title: "Espace employeur" };
 
-const STATUS_LABELS: Record<ListingStatus, string> = {
-  publiee: "Publiée",
-  en_attente: "En attente",
-  signalee: "Signalée",
-  archivee: "Archivée",
-};
-
-export default function EmployeurPage() {
-  const listings = getCompanyListings(COMPANY.id);
-  const applications = getApplicationsForCompany(COMPANY.id);
+export default async function EmployeurPage() {
+  await requireRole("employer", "/employeur");
+  const [company, listings, applications] = await Promise.all([
+    getCompany(),
+    getCompanyListings(),
+    getReceivedApplications(),
+  ]);
   const views = listings.reduce((total, listing) => total + listing.views, 0);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 space-y-10 px-4 py-10">
       <PageHeader
-        title={COMPANY.name}
+        title={company.name}
         description="Ajoutez, modifiez et suivez vos offres géolocalisées."
         actions={
           <Button render={<Link href="/employeur/offres/nouvelle" />}>
@@ -86,51 +84,59 @@ export default function EmployeurPage() {
             title="Aucune offre publiée"
             description="Publiez votre première offre géolocalisée : elle apparaîtra sur la carte publique dès sa validation."
             action={
-              <Button size="sm" render={<Link href="/employeur/offres/nouvelle" />}>
+              <Button
+                size="sm"
+                render={<Link href="/employeur/offres/nouvelle" />}
+              >
                 Publier une offre
               </Button>
             }
           />
         ) : (
           <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Intitulé</TableHead>
-              <TableHead>Ville</TableHead>
-              <TableHead>Rayon</TableHead>
-              <TableHead>Vues</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {listings.map((listing) => (
-              <TableRow key={listing.id}>
-                <TableCell className="font-medium">{listing.title}</TableCell>
-                <TableCell>{listing.city}</TableCell>
-                <TableCell>{listing.radiusKm} km</TableCell>
-                <TableCell>{listing.views}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      listing.status === "publiee" ? "secondary" : "outline"
-                    }
-                  >
-                    {STATUS_LABELS[listing.status]}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    render={<Link href={`/offres/${listing.id}`} />}
-                  >
-                    Voir
-                  </Button>
-                </TableCell>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Intitulé</TableHead>
+                <TableHead>Ville</TableHead>
+                <TableHead>Rayon</TableHead>
+                <TableHead>Vues</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
+            </TableHeader>
+            <TableBody>
+              {listings.map((listing) => (
+                <TableRow key={listing.id}>
+                  <TableCell className="font-medium">{listing.title}</TableCell>
+                  <TableCell>{listing.city}</TableCell>
+                  <TableCell>{listing.radiusKm} km</TableCell>
+                  <TableCell>{listing.views}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        listing.status === "publiee"
+                          ? "secondary"
+                          : listing.status === "signalee" ||
+                              listing.status === "refusee"
+                            ? "destructive"
+                            : "outline"
+                      }
+                    >
+                      {LISTING_STATUS_LABELS[listing.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      render={<Link href={`/offres/${listing.id}`} />}
+                    >
+                      Voir
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         )}
       </section>
@@ -144,30 +150,35 @@ export default function EmployeurPage() {
           />
         ) : (
           <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Candidat</TableHead>
-              <TableHead>Offre</TableHead>
-              <TableHead>Message</TableHead>
-              <TableHead>Reçue le</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {applications.map((application) => (
-              <TableRow key={application.id}>
-                <TableCell className="font-medium">
-                  {application.seekerName}
-                </TableCell>
-                <TableCell>
-                  {getListing(application.listingId)?.title ?? "—"}
-                </TableCell>
-                <TableCell className="max-w-xs truncate text-muted-foreground">
-                  {application.message}
-                </TableCell>
-                <TableCell>{application.sentAt}</TableCell>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Candidat</TableHead>
+                <TableHead>Offre</TableHead>
+                <TableHead>Message</TableHead>
+                <TableHead>Reçue le</TableHead>
+                <TableHead className="text-right">Suivi</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
+            </TableHeader>
+            <TableBody>
+              {applications.map((application) => (
+                <TableRow key={application.id}>
+                  <TableCell className="font-medium">
+                    {application.seekerName}
+                  </TableCell>
+                  <TableCell>{application.listingTitle}</TableCell>
+                  <TableCell className="max-w-xs truncate text-muted-foreground">
+                    {application.message}
+                  </TableCell>
+                  <TableCell>{formatDate(application.sentAt)}</TableCell>
+                  <TableCell className="text-right">
+                    <ApplicationStatusForm
+                      applicationId={application.id}
+                      status={application.status}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         )}
       </section>

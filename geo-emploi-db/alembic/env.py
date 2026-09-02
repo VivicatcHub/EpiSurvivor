@@ -66,7 +66,7 @@ def get_url() -> str:
 # %% : configparser interpole les %, un mot de passe qui en contient casserait.
 config.set_main_option("sqlalchemy.url", get_url().replace("%", "%%"))
 
-# Source de vérité du schéma : app/models.py côté geo-emploi-back.
+# Source de vérité du schéma : le paquet app/models/ côté geo-emploi-back.
 # `alembic revision --autogenerate -m "..."` diffe la base contre ces modèles.
 target_metadata = SQLModel.metadata
 

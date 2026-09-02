@@ -11,7 +11,7 @@ ni de jose, pour que le venv des migrations reste léger.
 
 from app.models.candidat import Experience, JobSeekerCompetence
 from app.models.compte import Employer, JobSeeker, User
-from app.models.offre import Candidature, Offre
+from app.models.offre import Candidature, Offre, OffreCompetence, Signalement
 from app.models.referentiel import Competence, TitrePoste
 
 __all__ = [
@@ -22,6 +22,8 @@ __all__ = [
     "JobSeeker",
     "JobSeekerCompetence",
     "Offre",
+    "OffreCompetence",
+    "Signalement",
     "TitrePoste",
     "User",
 ]

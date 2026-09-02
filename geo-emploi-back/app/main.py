@@ -1,9 +1,7 @@
 from fastapi import Request, Depends, FastAPI
 from app.auth import register, login, user, delete
-from app.database import create_db
 
 app = FastAPI()
-create_db()
 
 @app.get("/")
 def index():

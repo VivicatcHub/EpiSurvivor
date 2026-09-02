@@ -1,24 +1,15 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from fastapi import Depends, HTTPException, Request, Cookie
 from pydantic import EmailStr
-from sqlmodel import select, Session, Field, SQLModel
+from sqlmodel import select, Session, SQLModel
 from typing import Annotated
 from app.config import ALGORITHM, SECRET_KEY
 from jose import jwt
 from jose.exceptions import JWTError
 from app.database import get_db
-
-class User(SQLModel, table=True):
-    __tablename__ = "users"
-    uid: int | None = Field(default=None, primary_key=True)
-    firstname: str
-    lastname: str
-    email: str = Field(index=True, unique=True)
-    password: str
-    role: str
-    status: str = "active"
-    subscription_type: str = "none"
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+# La table vit dans app/models.py avec le reste du schéma (source des
+# migrations alembic) ; réexportée ici, le modèle est inchangé.
+from app.models import User
 
 class Register(SQLModel):
     email: str

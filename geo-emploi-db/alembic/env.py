@@ -1,10 +1,20 @@
 import os
+import sys
 from logging.config import fileConfig
+from pathlib import Path
+from urllib.parse import quote_plus
 
 from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
+
+# Le schéma est défini par les modèles SQLModel du back : on les rend
+# importables depuis ici pour que --autogenerate les voie.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "geo-emploi-back"))
+
+from sqlmodel import SQLModel  # noqa: E402
+from app import models  # noqa: E402,F401  (enregistre les tables)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,22 +31,44 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
 
 
 def get_url() -> str:
+    """URL de connexion, dans l'ordre de priorité :
+
+    1. DATABASE_URL si elle est définie (staging, CI, base distante) ;
+    2. sinon reconstruite depuis les POSTGRES_* du .env, c'est-à-dire les
+       mêmes variables que celles consommées par compose.yaml. Un seul
+       endroit où changer les identifiants.
+    """
     url = os.getenv("DATABASE_URL")
-    if not url:
+    if url:
+        return url
+
+    user = os.getenv("POSTGRES_USER")
+    password = os.getenv("POSTGRES_PASSWORD")
+    database = os.getenv("POSTGRES_DB")
+    if not (user and password and database):
         raise RuntimeError(
-            "DATABASE_URL n'est pas définie. Exemple :\n"
-            "  export DATABASE_URL="
-            "postgresql+psycopg2://user:password@host:5432/geo_emploi"
+            "Connexion introuvable : renseigne POSTGRES_USER, "
+            "POSTGRES_PASSWORD et POSTGRES_DB dans .env "
+            "(cf. .env.example), ou bien DATABASE_URL directement."
         )
-    return url
+
+    # Le conteneur écoute sur 5432, compose.yaml le publie sur POSTGRES_PORT :
+    # depuis l'hôte, où tourne alembic, c'est ce port-là qu'il faut viser.
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5555")
+
+    return (
+        f"postgresql+psycopg2://{quote_plus(user)}:{quote_plus(password)}"
+        f"@{host}:{port}/{database}"
+    )
 
 
 # %% : configparser interpole les %, un mot de passe qui en contient casserait.
 config.set_main_option("sqlalchemy.url", get_url().replace("%", "%%"))
 
-# Les migrations sont écrites à la main (pas de modèles SQLAlchemy côté repo),
-# donc pas de metadata pour l'autogenerate.
-target_metadata = None
+# Source de vérité du schéma : le paquet app/models/ côté geo-emploi-back.
+# `alembic revision --autogenerate -m "..."` diffe la base contre ces modèles.
+target_metadata = SQLModel.metadata
 
 
 def run_migrations_offline() -> None:
@@ -77,7 +109,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
         )
 
         with context.begin_transaction():

@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, col, or_, select
 
 from app.auth.user import (
-    Account,
     CheckEmployer,
     CheckOptionalAuth,
     CheckSeeker,
@@ -15,26 +14,28 @@ from app.auth.user import (
 )
 from app.database import get_db
 from app.models import (
-    Application,
+    Candidature,
     Employer,
-    JobOffer,
-    JobOfferSkill,
-    JobTitle,
-    OfferReport,
+    Offre,
+    OffreCompetence,
+    Signalement,
+    TitrePoste,
+    User,
 )
+from app.plans import plan_of
 from app.schemas import (
     OFFER_MAX_AGE_DAYS,
-    ApplyIn,
     ApplicationOut,
+    ApplyIn,
     ListingIn,
     ListingOut,
     ReportIn,
-    CONTRACT_TYPES,
 )
 from app.serializers import (
+    TYPES_CONTRAT_IN,
     application_out,
-    get_or_create_job_title,
-    get_or_create_skill,
+    get_or_create_competence,
+    get_or_create_titre_poste,
     listing_out,
     listings_out,
     reported_offer_ids,
@@ -48,12 +49,12 @@ def _visible_offers():
     """Offres réellement affichables : validées et non archivées (§2.2)."""
     cutoff = datetime.now(timezone.utc) - timedelta(days=OFFER_MAX_AGE_DAYS)
     return (
-        select(JobOffer, JobTitle, Employer)
-        .join(JobTitle, col(JobTitle.id) == col(JobOffer.job_title_id))
-        .join(Employer, col(Employer.id) == col(JobOffer.employer_id))
-        .where(JobOffer.moderation_status == "approved")
-        .where(col(JobOffer.archived_at).is_(None))
-        .where(col(JobOffer.published_at) >= cutoff)
+        select(Offre, TitrePoste, Employer)
+        .join(TitrePoste, col(TitrePoste.id) == col(Offre.titre_poste_id))
+        .join(Employer, col(Employer.id) == col(Offre.employer_id))
+        .where(Offre.statut_moderation == "validee")
+        .where(col(Offre.archivee_le).is_(None))
+        .where(col(Offre.date_offre) >= cutoff)
     )
 
 
@@ -72,162 +73,166 @@ def search_offers(
     statement = _visible_offers()
 
     if contract and contract != "toutes":
-        if contract not in CONTRACT_TYPES:
+        type_contrat = TYPES_CONTRAT_IN.get(contract)
+        if type_contrat is None:
             raise HTTPException(status_code=400, detail="Type de contrat inconnu")
-        statement = statement.where(JobOffer.contract_type == contract)
+        statement = statement.where(Offre.type_contrat == type_contrat)
 
     if q and q.strip():
         pattern = f"%{q.strip()}%"
         statement = statement.where(
             or_(
-                col(JobTitle.label).ilike(pattern),
-                col(Employer.name).ilike(pattern),
-                col(JobOffer.city).ilike(pattern),
-                col(JobOffer.description).ilike(pattern),
+                col(TitrePoste.libelle).ilike(pattern),
+                col(Employer.nom).ilike(pattern),
+                col(Offre.ville).ilike(pattern),
+                col(Offre.description).ilike(pattern),
             )
         )
 
     # La carte interroge par cadre visible : les quatre bornes vont ensemble.
     if None not in (min_lat, max_lat, min_lng, max_lng):
         statement = (
-            statement.where(col(JobOffer.latitude).between(min_lat, max_lat))
-            .where(col(JobOffer.longitude).between(min_lng, max_lng))
+            statement.where(col(Offre.latitude).between(min_lat, max_lat))
+            .where(col(Offre.longitude).between(min_lng, max_lng))
         )
 
     rows = db.exec(
-        statement.order_by(col(JobOffer.published_at).desc()).limit(limit)
+        statement.order_by(col(Offre.date_offre).desc()).limit(limit)
     ).all()
     return listings_out(db, list(rows))
 
 
 @router.get("/{offer_id}", response_model=ListingOut)
 def get_offer(offer_id: int, db: Session = Depends(get_db)):
-    row = db.exec(_visible_offers().where(JobOffer.id == offer_id)).first()
+    row = db.exec(_visible_offers().where(Offre.id == offer_id)).first()
     if not row:
         raise HTTPException(status_code=404, detail="Offre introuvable")
-    offer, title, employer = row
+    offer, titre, employer = row
 
-    offer.view_count += 1
+    offer.nb_vues += 1
     db.add(offer)
     db.commit()
     db.refresh(offer)
 
     skills = skills_by_offer(db, [offer_id]).get(offer_id, [])
     reported = offer_id in reported_offer_ids(db, [offer_id])
-    return listing_out(offer, title.label, employer, skills, reported=reported)
+    return listing_out(offer, titre.libelle, employer, skills, reported=reported)
 
 
 @router.post("", response_model=ListingOut, status_code=201)
 def create_offer(
     data: ListingIn,
-    account: Account = Depends(CheckEmployer),
+    account: User = Depends(CheckEmployer),
     db: Session = Depends(get_db),
 ):
     employer = employer_of(db, account)
-    if employer.subscription_plan == "none":
+    plan = plan_of(account.subscription_type)
+    if account.subscription_type == "none":
         raise HTTPException(
             status_code=402,
             detail="Un abonnement est nécessaire pour publier une offre",
         )
-    if data.contract not in CONTRACT_TYPES:
+    type_contrat = TYPES_CONTRAT_IN.get(data.contract)
+    if type_contrat is None:
         raise HTTPException(status_code=400, detail="Type de contrat inconnu")
-    if data.radius_km > employer.plan_radius_km:
+    if data.radius_km > plan["radius_km"]:
         raise HTTPException(
             status_code=400,
             detail=(
-                f"Votre formule couvre {employer.plan_radius_km} km de rayon "
+                f"Votre formule couvre {plan['radius_km']} km de rayon "
                 f"de diffusion, pas {data.radius_km} km"
             ),
         )
 
-    title = get_or_create_job_title(db, data.title)
-    offer = JobOffer(
+    titre = get_or_create_titre_poste(db, data.title)
+    offer = Offre(
         employer_id=employer.id,
-        job_title_id=title.id,
+        titre_poste_id=titre.id,
         description=data.description,
-        contract_type=data.contract,
+        type_contrat=type_contrat,
         # Le code INSEE viendra d'un géocodeur ; à défaut le code postal en
         # tient lieu, la précision commune reste assurée (§3.2).
-        insee_code=(data.insee_code or data.postal_code)[:5].rjust(5, "0"),
+        code_insee=(data.insee_code or data.postal_code or "")[:5].rjust(5, "0"),
         latitude=data.lat,
         longitude=data.lng,
-        radius_km=data.radius_km,
-        salary_label=data.salary,
-        address=data.address,
-        city=data.city,
-        postal_code=data.postal_code[:5],
+        perimetre_km=data.radius_km,
+        salaire=data.salary,
+        adresse=data.address,
+        ville=data.city,
+        code_postal=(data.postal_code or "")[:5],
         # Modération a posteriori : l'offre est en ligne tout de suite, et
         # c'est le signalement (§5) qui la remonte à l'administration.
-        moderation_status="approved",
+        statut_moderation="validee",
     )
     db.add(offer)
     db.flush()
 
-    for label in data.skills:
-        if not label.strip():
-            continue
-        skill = get_or_create_skill(db, label)
-        db.add(JobOfferSkill(job_offer_id=offer.id, skill_id=skill.id))
+    labels = [label.strip() for label in data.skills if label.strip()]
+    for label in labels:
+        competence = get_or_create_competence(db, label)
+        db.add(
+            OffreCompetence(offre_id=offer.id, competence_id=competence.id)
+        )
 
     db.commit()
     db.refresh(offer)
-    return listing_out(offer, title.label, employer, [s.strip() for s in data.skills if s.strip()])
+    return listing_out(offer, titre.libelle, employer, labels)
 
 
 @router.post("/{offer_id}/apply", response_model=ApplicationOut, status_code=201)
 def apply_to_offer(
     offer_id: int,
     data: ApplyIn,
-    account: Account = Depends(CheckSeeker),
+    account: User = Depends(CheckSeeker),
     db: Session = Depends(get_db),
 ):
     """Postuler — réservé à un chercheur d'emploi authentifié (§2.2)."""
     seeker = seeker_of(db, account)
-    row = db.exec(_visible_offers().where(JobOffer.id == offer_id)).first()
+    row = db.exec(_visible_offers().where(Offre.id == offer_id)).first()
     if not row:
         raise HTTPException(status_code=404, detail="Offre introuvable")
-    offer, title, employer = row
+    offer, titre, employer = row
 
     already = db.exec(
-        select(Application)
-        .where(Application.job_seeker_id == seeker.id)
-        .where(Application.job_offer_id == offer_id)
+        select(Candidature)
+        .where(Candidature.job_seeker_id == seeker.id)
+        .where(Candidature.offre_id == offer_id)
     ).first()
     if already:
         raise HTTPException(status_code=409, detail="Vous avez déjà postulé")
 
-    application = Application(
+    application = Candidature(
         job_seeker_id=seeker.id,
-        job_offer_id=offer_id,
+        offre_id=offer_id,
         employer_id=offer.employer_id,
-        status="sent",
+        statut="envoyee",
         message=data.message,
     )
     db.add(application)
     db.commit()
     db.refresh(application)
-    return application_out(application, title.label, employer.name, seeker)
+    return application_out(application, titre.libelle, employer.nom, seeker)
 
 
 @router.post("/{offer_id}/report", status_code=201)
 def report_offer(
     offer_id: int,
     data: ReportIn,
-    account: Account | None = Depends(CheckOptionalAuth),
+    account: User | None = Depends(CheckOptionalAuth),
     db: Session = Depends(get_db),
 ):
     """§5 : le signalement est ouvert, y compris sans compte."""
     if not data.reason.strip():
         raise HTTPException(status_code=400, detail="Motif requis")
-    offer = db.get(JobOffer, offer_id)
+    offer = db.get(Offre, offer_id)
     if not offer:
         raise HTTPException(status_code=404, detail="Offre introuvable")
 
     db.add(
-        OfferReport(
-            job_offer_id=offer_id,
-            reporter_account_id=account.id if account else None,
-            reason=data.reason.strip(),
+        Signalement(
+            offre_id=offer_id,
+            compte_id=account.uid if account else None,
+            motif=data.reason.strip(),
         )
     )
     db.commit()

@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from email_validator import EmailNotValidError, validate_email
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
@@ -7,14 +5,11 @@ from sqlmodel import Session, select
 from app.auth.user import create_token, hash_password
 from app.config import COOKIE_SECURE, SESSION_COOKIE, TOKEN_EXPIRE_MINUTES
 from app.database import get_db
-from app.models import Account, Employer, JobSeeker
+from app.models import Employer, JobSeeker, User
 from app.schemas import ROLES, RegisterIn, SessionUser
 from app.serializers import session_user
 
 router = APIRouter(prefix="/api/v1", tags=["auth"])
-
-# Formule d'entrée du sujet : 400 €/mois, 15 km de rayon de diffusion.
-STANDARD_PLAN = {"plan_price_eur": 400, "plan_radius_km": 15}
 
 
 @router.post("/register", response_model=SessionUser, status_code=201)
@@ -30,38 +25,40 @@ def register(data: RegisterIn, response: Response, db: Session = Depends(get_db)
             status_code=400,
             detail=f"Rôle invalide, attendu l'un de {ROLES[:2]}",
         )
-    if db.exec(select(Account).where(Account.email == email)).first():
+    if db.exec(select(User).where(User.email == email)).first():
         raise HTTPException(status_code=409, detail="Email déjà enregistré")
 
-    account = Account(
+    account = User(
         email=email,
-        password_hash=hash_password(data.password),
+        password=hash_password(data.password),
+        firstname=data.firstname,
+        lastname=data.lastname,
         role=data.role,
         status="active",
+        # L'employeur choisit sa formule juste après (/employeur/abonnement) :
+        # sans abonnement, la publication d'offre reste fermée (402).
+        subscription_type="none",
     )
     db.add(account)
-    db.flush()  # pour disposer de account.id avant d'écrire le profil lié
+    db.flush()  # pour disposer de account.uid avant d'écrire le profil lié
 
     if data.role == "employer":
         name = (data.company or f"{data.firstname} {data.lastname}").strip()
         db.add(
             Employer(
-                account_id=account.id,
-                name=name,
+                compte_id=account.uid,
+                nom=name,
                 siret=data.siret or None,
-                contact_email=email,
-                subscription_plan="standard",
-                subscribed_at=datetime.now(timezone.utc),
-                **STANDARD_PLAN,
+                email_contact=email,
             )
         )
     else:
         name = f"{data.firstname} {data.lastname}".strip()
         db.add(
             JobSeeker(
-                account_id=account.id,
-                first_name=data.firstname,
-                last_name=data.lastname,
+                compte_id=account.uid,
+                prenom=data.firstname,
+                nom=data.lastname,
             )
         )
 

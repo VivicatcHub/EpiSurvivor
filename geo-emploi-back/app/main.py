@@ -9,7 +9,7 @@ from app.api import admin, employer, offers, seeker
 from app.auth import delete, login, register
 from app.config import CORS_ORIGINS
 from app.database import engine
-from app.models import JobOffer
+from app.models import Offre
 from app.schemas import OFFER_MAX_AGE_DAYS
 
 
@@ -23,12 +23,12 @@ def archive_expired_offers() -> int:
     cutoff = datetime.now(timezone.utc) - timedelta(days=OFFER_MAX_AGE_DAYS)
     with Session(engine) as session:
         expired = session.exec(
-            select(JobOffer)
-            .where(col(JobOffer.archived_at).is_(None))
-            .where(col(JobOffer.published_at) < cutoff)
+            select(Offre)
+            .where(col(Offre.archivee_le).is_(None))
+            .where(col(Offre.date_offre) < cutoff)
         ).all()
         for offer in expired:
-            offer.archived_at = datetime.now(timezone.utc)
+            offer.archivee_le = datetime.now(timezone.utc)
             session.add(offer)
         session.commit()
         return len(expired)

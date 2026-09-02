@@ -5,7 +5,7 @@
 #
 # L'ordre de démarrage est contraint : `migrate` attend que PostgreSQL réponde,
 # `api` attend que les migrations soient allées au bout (le backend ne crée
-# aucune table, cf. geo-emploi-back/app/models.py).
+# aucune table, cf. geo-emploi-back/app/models/).
 
 name: geo-emploi
 
@@ -31,7 +31,11 @@ services:
       start_period: 30s
 
   migrate:
-    build: ./geo-emploi-db
+    # Contexte a la racine : l'image des migrations a besoin des modeles du
+    # back (geo-emploi-back/app/models), source de verite du schema.
+    build:
+      context: .
+      dockerfile: geo-emploi-db/Dockerfile
     environment:
       DATABASE_URL: postgresql+psycopg2://admin:admin@db:5432/geo_emploi
     depends_on:

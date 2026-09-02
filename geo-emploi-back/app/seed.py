@@ -17,18 +17,19 @@ from sqlmodel import Session, delete, select
 
 from app.auth.user import hash_password
 from app.database import engine
+from app.serializers import TYPES_CONTRAT_IN
 from app.models import (
-    Account,
-    Application,
+    Candidature,
+    Competence,
     Employer,
     Experience,
-    JobOffer,
-    JobOfferSkill,
     JobSeeker,
-    JobSeekerSkill,
-    JobTitle,
-    OfferReport,
-    Skill,
+    JobSeekerCompetence,
+    Offre,
+    OffreCompetence,
+    Signalement,
+    TitrePoste,
+    User,
 )
 
 FIXTURE = Path(__file__).parent / "fixtures" / "demo.json"
@@ -61,9 +62,11 @@ SEEKER_EXPERIENCES = [
     ),
 ]
 
+# Enfants avant parents : les ON DELETE CASCADE du schéma suffiraient, mais
+# vider dans l'ordre garde le script lisible et indépendant du schéma.
 TABLES = (
-    OfferReport, Application, JobOfferSkill, JobSeekerSkill, Experience,
-    JobOffer, JobTitle, Skill, JobSeeker, Employer, Account,
+    Signalement, Candidature, OffreCompetence, JobSeekerCompetence, Experience,
+    Offre, TitrePoste, Competence, JobSeeker, Employer, User,
 )
 
 
@@ -74,73 +77,86 @@ def reset(session: Session) -> None:
 
 
 def _account(
-    session: Session, email: str, role: str, name: str | None = None
-) -> Account:
-    account = Account(
-        email=email, password_hash=hash_password(DEMO_PASSWORD), role=role,
-        status="active", display_name=name,
+    session: Session,
+    email: str,
+    role: str,
+    firstname: str,
+    lastname: str,
+    subscription: str = "none",
+) -> User:
+    account = User(
+        email=email,
+        password=hash_password(DEMO_PASSWORD),
+        firstname=firstname,
+        lastname=lastname,
+        role=role,
+        status="active",
+        subscription_type=subscription,
     )
     session.add(account)
     session.flush()
     return account
 
 
-def _skill(session: Session, cache: dict[str, Skill], label: str) -> Skill:
-    label = label.strip()
-    if label not in cache:
-        skill = Skill(label=label)
-        session.add(skill)
+def _competence(
+    session: Session, cache: dict[str, Competence], libelle: str
+) -> Competence:
+    libelle = libelle.strip()
+    if libelle not in cache:
+        competence = Competence(libelle=libelle)
+        session.add(competence)
         session.flush()
-        cache[label] = skill
-    return cache[label]
+        cache[libelle] = competence
+    return cache[libelle]
 
 
-def _title(session: Session, cache: dict[str, JobTitle], label: str) -> JobTitle:
-    label = label.strip()
-    if label not in cache:
-        title = JobTitle(label=label)
-        session.add(title)
+def _titre(session: Session, cache: dict[str, TitrePoste], libelle: str) -> TitrePoste:
+    libelle = libelle.strip()
+    if libelle not in cache:
+        titre = TitrePoste(libelle=libelle)
+        session.add(titre)
         session.flush()
-        cache[label] = title
-    return cache[label]
+        cache[libelle] = titre
+    return cache[libelle]
 
 
 def seed(session: Session) -> None:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     now = datetime.now(timezone.utc)
-    skills: dict[str, Skill] = {}
-    titles: dict[str, JobTitle] = {}
+    competences: dict[str, Competence] = {}
+    titres: dict[str, TitrePoste] = {}
 
     # ------------------------------------------------------------- comptes
-    admin_account = _account(session, ADMIN[0], "admin", f"{ADMIN[1]} {ADMIN[2]}")
+    admin_account = _account(session, ADMIN[0], "admin", ADMIN[1], ADMIN[2])
 
-    seeker_account = _account(session, SEEKER[0], "job_seeker")
+    seeker_account = _account(session, SEEKER[0], "job_seeker", SEEKER[1], SEEKER[2])
     seeker = JobSeeker(
-        account_id=seeker_account.id,
-        first_name=SEEKER[1],
-        last_name=SEEKER[2],
-        headline="Développeuse front-end — 3 ans d'expérience",
-        city="Lyon",
-        available_from=(now + timedelta(days=30)).date(),
+        compte_id=seeker_account.uid,
+        prenom=SEEKER[1],
+        nom=SEEKER[2],
+        titre_pro="Développeuse front-end — 3 ans d'expérience",
+        ville="Lyon",
+        disponibilite=(now + timedelta(days=30)).date(),
     )
     session.add(seeker)
     session.flush()
 
-    for label in SEEKER_SKILLS:
+    for libelle in SEEKER_SKILLS:
         session.add(
-            JobSeekerSkill(
-                job_seeker_id=seeker.id, skill_id=_skill(session, skills, label).id
+            JobSeekerCompetence(
+                job_seeker_id=seeker.id,
+                competence_id=_competence(session, competences, libelle).id,
             )
         )
     for role, company, start, end, description in SEEKER_EXPERIENCES:
         session.add(
             Experience(
                 job_seeker_id=seeker.id,
-                job_title_id=_title(session, titles, role).id,
-                company_name=company,
-                contract_type="permanent" if end is None else "apprenticeship",
-                start_date=start,
-                end_date=end,
+                titre_poste_id=_titre(session, titres, role).id,
+                entreprise=company,
+                type_contrat="cdi" if end is None else "alternance",
+                date_debut=start,
+                date_fin=end,
                 description=description,
             )
         )
@@ -155,86 +171,90 @@ def seed(session: Session) -> None:
             if index == 0
             else f"rh+{company['key']}@geoemploi.example.fr"
         )
-        account = _account(session, email, "employer")
+        account = _account(
+            session, email, "employer", "Service", "Recrutement", "standard"
+        )
         employer = Employer(
-            account_id=account.id,
-            name=company["name"],
+            compte_id=account.uid,
+            nom=company["name"],
             siret=str(81234567800000 + index),
-            verification_status="verified",
-            sector="Édition de logiciels" if index == 0 else None,
-            city=company["city"],
-            contact_email=email,
-            subscription_plan="standard",
-            subscribed_at=now - timedelta(days=90),
-            plan_radius_km=15,
-            plan_price_eur=400,
+            statut_verification="verifie",
+            secteur="Édition de logiciels" if index == 0 else None,
+            ville=company["city"],
+            email_contact=email,
+            abonne_depuis=now - timedelta(days=90),
         )
         session.add(employer)
         session.flush()
         employers[company["key"]] = employer
 
     # -------------------------------------------------------------- offres
-    STATUS = {"publiee": "approved", "en_attente": "pending", "signalee": "approved"}
-    offers: list[JobOffer] = []
+    # Statuts de la fixture → vocabulaire de la base (cf. serializers.py).
+    STATUT = {"publiee": "validee", "en_attente": "en_attente", "signalee": "validee"}
+    # Toutes les entreprises de démonstration sont en formule standard.
+    PLAN_RADIUS_KM = 15
+    offers: list[Offre] = []
     for item in data["offers"]:
         employer = employers[item["companyKey"]]
         # Les formules ne couvrent que 15 km : la fixture est ramenée au
         # plafond plutôt que de créer des offres qu'aucun employeur ne
         # pourrait publier via l'API.
-        radius = min(item["radiusKm"], employer.plan_radius_km)
-        offer = JobOffer(
+        radius = min(item["radiusKm"], PLAN_RADIUS_KM)
+        offer = Offre(
             employer_id=employer.id,
-            job_title_id=_title(session, titles, item["title"]).id,
+            titre_poste_id=_titre(session, titres, item["title"]).id,
             description=item["description"],
-            contract_type=item["contract"],
-            insee_code=item["postalCode"],
+            # La fixture parle la langue de l'API : on stocke la valeur base.
+            type_contrat=TYPES_CONTRAT_IN[item["contract"]],
+            code_insee=item["postalCode"],
             latitude=item["lat"],
             longitude=item["lng"],
-            radius_km=radius,
-            view_count=item["views"],
-            moderation_status=STATUS[item["status"]],
-            salary_label=item["salary"],
-            address=item["address"],
-            city=item["city"],
-            postal_code=item["postalCode"],
+            perimetre_km=radius,
+            nb_vues=item["views"],
+            statut_moderation=STATUT[item["status"]],
+            salaire=item["salary"],
+            adresse=item["address"],
+            ville=item["city"],
+            code_postal=item["postalCode"],
             # Dates relatives au jour du seed : la démo ne périme pas.
-            published_at=now - timedelta(days=item["daysAgo"]),
+            date_offre=now - timedelta(days=item["daysAgo"]),
         )
         session.add(offer)
         session.flush()
         offers.append(offer)
 
-        for label in item["skills"]:
+        for libelle in item["skills"]:
             session.add(
-                JobOfferSkill(
-                    job_offer_id=offer.id, skill_id=_skill(session, skills, label).id
+                OffreCompetence(
+                    offre_id=offer.id,
+                    competence_id=_competence(session, competences, libelle).id,
                 )
             )
 
         if item["status"] == "signalee":
             session.add(
-                OfferReport(
-                    job_offer_id=offer.id,
-                    reason="Annonce suspecte : aucune trace de l'entreprise, "
+                Signalement(
+                    offre_id=offer.id,
+                    motif="Annonce suspecte : aucune trace de l'entreprise, "
                     "demande de virement à l'embauche.",
-                    status="open",
+                    statut="ouvert",
                 )
             )
 
     # -------------------------------------------------------- candidatures
-    for offer, message, status in (
-        (offers[0], "Bonjour, votre stack correspond exactement à mon parcours.", "in_review"),
-        (offers[5], "Je serais ravie de travailler sur le parcours mobile.", "viewed"),
-        (offers[1], "Disponible immédiatement pour les permanences.", "sent"),
+    for offer, message, statut in (
+        (offers[0], "Bonjour, votre stack correspond exactement à mon parcours.", "en_cours"),
+        (offers[5], "Je serais ravie de travailler sur le parcours mobile.", "vue"),
+        (offers[1], "Disponible immédiatement pour les permanences.", "envoyee"),
     ):
         session.add(
-            Application(
+            Candidature(
                 job_seeker_id=seeker.id,
-                job_offer_id=offer.id,
+                offre_id=offer.id,
                 employer_id=offer.employer_id,
-                status=status,
+                statut=statut,
                 message=message,
-                created_at=now - timedelta(days=2),
+                date_creation=now - timedelta(days=2),
             )
         )
 
@@ -252,7 +272,7 @@ def main() -> int:
     with Session(engine) as session:
         if "--reset" in sys.argv:
             reset(session)
-        elif session.exec(select(Account).limit(1)).first():
+        elif session.exec(select(User).limit(1)).first():
             print("Base déjà peuplée — rien à faire (utilisez --reset pour repartir de zéro).")
             return 0
         seed(session)

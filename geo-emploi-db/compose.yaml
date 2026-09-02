@@ -3,7 +3,9 @@ services:
     image: postgres:16
     env_file: .env
     ports:
-      - "5555:5432"
+      # Acces depuis l'hote uniquement (psql, DBeaver, alembic hors conteneur).
+      # Le back, lui, passe par le reseau docker ci-dessous.
+      - "127.0.0.1:${POSTGRES_PORT:-5555}:5432"
     volumes:
       - "pgdata:/var/lib/postgresql/data"
     healthcheck:
@@ -15,3 +17,7 @@ services:
 
 volumes:
   pgdata:
+
+networks:
+  default:
+    name: geo-emploi-db

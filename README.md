@@ -5,7 +5,7 @@ Le projet est découpé en trois dépôts qui forment **une seule application** 
 
 | Dossier            | Rôle                                                                 | Port |
 | ------------------ | -------------------------------------------------------------------- | ---- |
-| `geo-emploi-db`    | Schéma PostgreSQL et migrations Alembic — **propriétaire du schéma**  | 5555 |
+| `geo-emploi-db`    | Base PostgreSQL et migrations Alembic, **générées depuis les modèles**| 5555 |
 | `geo-emploi-back`  | API REST FastAPI : authentification, offres, candidatures, modération | 1234 |
 | `geo-emploi-front` | Application Next.js 16 : carte publique, espaces des trois rôles      | 3000 |
 
@@ -14,14 +14,19 @@ Le projet est découpé en trois dépôts qui forment **une seule application** 
 ```
 navigateur ──► Next.js (serveur) ──► FastAPI ──► PostgreSQL
             ▲                    ▲            ▲
-    cookie httpOnly    cookie relayé    schéma Alembic
+    cookie httpOnly    cookie relayé    migrations Alembic
+                                        générées depuis app/models/
 ```
 
 Trois décisions structurent l'ensemble :
 
-1. **Le schéma appartient à Alembic.** Le backend déclare des modèles SQLModel
-   calqués sur les tables (`geo-emploi-back/app/models.py`) mais n'appelle
-   jamais `create_all`. Toute colonne nouvelle passe d'abord par une migration.
+1. **Les modèles sont la source de vérité du schéma.** Le schéma est décrit une
+   fois, en SQLModel (`geo-emploi-back/app/models/`) ; les migrations Alembic en
+   sont *dérivées* (`alembic revision --autogenerate`), jamais écrites à la
+   main. Le backend, lui, n'appelle jamais `create_all` : seule une migration
+   appliquée touche la base. Une colonne nouvelle s'ajoute donc au modèle, puis
+   `--autogenerate` produit la révision — et un `--autogenerate` qui ne détecte
+   rien est la preuve que base et modèles concordent.
 
 2. **Le navigateur ne parle jamais au backend.** Les Server Components, Server
    Actions et Route Handlers de Next appellent l'API et relaient le cookie de
@@ -29,10 +34,13 @@ Trois décisions structurent l'ensemble :
    négocier, et le JWT reste dans un cookie `httpOnly` — illisible par un
    script injecté (§3.1 du sujet).
 
-3. **Un seul vocabulaire.** L'API répond en camelCase avec les valeurs de la
-   base (`job_seeker`, `permanent`, `in_review`). `app/schemas.py` et
-   `lib/schemas.ts` décrivent les mêmes objets ; le français n'apparaît qu'à
-   l'affichage, dans `geo-emploi-front/lib/labels.ts`.
+3. **Un seul vocabulaire par étage, deux frontières explicites.** La base parle
+   français, comme le reste du schéma (`statut = 'envoyee'`, `'en_attente'`) ;
+   l'API répond en camelCase avec les valeurs du contrat (`sent`, `pending`) ;
+   l'écran affiche des libellés. Chaque passage a un seul point de traduction :
+   `app/serializers.py` entre la base et l'API, `lib/labels.ts` entre l'API et
+   l'écran. `app/schemas.py` et `lib/schemas.ts` décrivent les mêmes objets, et
+   aucune route ne manipule un statut de base directement.
 
 L'autorisation est vérifiée trois fois, volontairement : `proxy.ts` (optimiste,
 sur le cookie seul), `lib/dal.ts` (au rendu de la page) et le backend (qui
@@ -123,12 +131,14 @@ La recherche accepte `?q=`, `?contract=` et un cadre de carte
 - **§2.2 carte sans compte** — `/offres` n'est pas dans le matcher de `proxy.ts`.
 - **§2.2 candidature authentifiée** — vérifiée dans la Server Action *et* par
   `CheckSeeker` côté API.
-- **§2.2 archivage à 30 jours** — colonne `archived_at`, balayage au démarrage
+- **§2.2 archivage à 30 jours** — colonne `archivee_le`, balayage au démarrage
   de l'API, et filtre sur la date dans la recherche (un retard de tâche ne
   peut donc pas remettre une offre périmée sur la carte).
-- **§3.2 précision commune** — `insee_code`, latitude/longitude et rayon portés
+- **§3.2 précision commune** — `code_insee`, latitude/longitude et rayon portés
   par chaque offre.
 - **§3.3 RGPD** — suppression de compte réelle (confirmation par saisie de
-  l'e-mail), cascade en base, position jamais persistée.
+  l'e-mail), cascade en base (`ON DELETE CASCADE` sur les profils, offres et
+  candidatures ; `SET NULL` sur l'auteur d'un signalement, qui reste instruit),
+  position jamais persistée.
 - **§5 signalement** — ouvert aux visiteurs anonymes, remonté dans l'onglet
   « Signalements » de l'administration.

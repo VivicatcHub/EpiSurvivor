@@ -13,20 +13,18 @@ fi
 # le back demarre avant que postgres accepte les connexions.
 docker compose -f "$DB_DIR/compose.yaml" up -d --wait
 
-# Le back tourne dans un conteneur : "localhost" y designe le conteneur
-# lui-meme, pas l'hote. On l'attache au reseau de la base et on vise le
-# service par son nom, sur le port interne 5432 (pas le port publie).
-DB_NETWORK=$(docker inspect \
-  -f '{{range $net, $_ := .NetworkSettings.Networks}}{{$net}}{{end}}' \
-  "$(docker compose -f "$DB_DIR/compose.yaml" ps -q local)")
-
 # Memes identifiants que compose.yaml et alembic : un seul endroit ou les changer.
 set -a; . "$DB_DIR/.env"; set +a
 
 docker build -t geo-emploi-back .
+
+# Le back tourne dans un conteneur : "localhost" y designe le conteneur lui-meme,
+# pas l'hote. On l'attache au reseau de la base (nom fixe dans compose.yaml) et on
+# vise le service par son nom, sur le port interne 5432. Le port publie, lui, est
+# limite a 127.0.0.1 et reste reserve aux acces depuis l'hote.
 docker run --rm \
   -p 1234:1234 \
   -v "$(pwd)/app:/app/app" \
-  --network "$DB_NETWORK" \
+  --network geo-emploi-db \
   -e DATABASE_URL="postgresql+psycopg2://$POSTGRES_USER:$POSTGRES_PASSWORD@local:5432/$POSTGRES_DB" \
   geo-emploi-back

@@ -1,11 +1,20 @@
 import os
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 from urllib.parse import quote_plus
 
 from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
+
+# Le schéma est défini par les modèles SQLModel du back : on les rend
+# importables depuis ici pour que --autogenerate les voie.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "geo-emploi-back"))
+
+from sqlmodel import SQLModel  # noqa: E402
+from app import models  # noqa: E402,F401  (enregistre les tables)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -57,9 +66,9 @@ def get_url() -> str:
 # %% : configparser interpole les %, un mot de passe qui en contient casserait.
 config.set_main_option("sqlalchemy.url", get_url().replace("%", "%%"))
 
-# Les migrations sont écrites à la main (pas de modèles SQLAlchemy côté repo),
-# donc pas de metadata pour l'autogenerate.
-target_metadata = None
+# Source de vérité du schéma : app/models.py côté geo-emploi-back.
+# `alembic revision --autogenerate -m "..."` diffe la base contre ces modèles.
+target_metadata = SQLModel.metadata
 
 
 def run_migrations_offline() -> None:
@@ -100,7 +109,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
         )
 
         with context.begin_transaction():

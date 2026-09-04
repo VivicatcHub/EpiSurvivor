@@ -12,36 +12,19 @@ import json
 import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-
 from sqlmodel import Session, delete, select
-
-from app.auth.user import hash_password
+from app.auth.user import password_hash
 from app.database import engine
 from app.serializers import TYPES_CONTRAT_IN
-from app.models import (
-    Candidature,
-    Competence,
-    Employer,
-    Experience,
-    JobSeeker,
-    JobSeekerCompetence,
-    Offre,
-    OffreCompetence,
-    Signalement,
-    TitrePoste,
-    User,
-)
+from app.models import Candidature, Competence, Employer, Experience, JobSeeker, JobSeekerCompetence, Offre, OffreCompetence, Signalement, TitrePoste, User
 
 FIXTURE = Path(__file__).parent / "fixtures" / "demo.json"
-
 DEMO_PASSWORD = "geoemploi2026"
-
 # Les trois comptes de démonstration, un par rôle du sujet.
 ADMIN = ("jeb@job-et-bonheur.fr", "Jean-Eudes", "Berlier")
 SEEKER = ("camille.aubert@example.fr", "Camille", "Aubert")
 # L'employeur de démonstration est la première entreprise de la fixture.
 EMPLOYER_EMAIL = "recrutement@rhone-numerique.example.fr"
-
 SEEKER_SKILLS = ["React", "TypeScript", "Next.js", "Accessibilité", "Figma"]
 SEEKER_EXPERIENCES = [
     (
@@ -61,7 +44,6 @@ SEEKER_EXPERIENCES = [
         "end-to-end.",
     ),
 ]
-
 # Enfants avant parents : les ON DELETE CASCADE du schéma suffiraient, mais
 # vider dans l'ordre garde le script lisible et indépendant du schéma.
 TABLES = (
@@ -69,12 +51,10 @@ TABLES = (
     Offre, TitrePoste, Competence, JobSeeker, Employer, User,
 )
 
-
 def reset(session: Session) -> None:
     for table in TABLES:
         session.exec(delete(table))
     session.commit()
-
 
 def _account(
     session: Session,
@@ -86,7 +66,7 @@ def _account(
 ) -> User:
     account = User(
         email=email,
-        password=hash_password(DEMO_PASSWORD),
+        password=password_hash.hash(DEMO_PASSWORD),
         firstname=firstname,
         lastname=lastname,
         role=role,
@@ -96,7 +76,6 @@ def _account(
     session.add(account)
     session.flush()
     return account
-
 
 def _competence(
     session: Session, cache: dict[str, Competence], libelle: str
@@ -109,7 +88,6 @@ def _competence(
         cache[libelle] = competence
     return cache[libelle]
 
-
 def _titre(session: Session, cache: dict[str, TitrePoste], libelle: str) -> TitrePoste:
     libelle = libelle.strip()
     if libelle not in cache:
@@ -118,7 +96,6 @@ def _titre(session: Session, cache: dict[str, TitrePoste], libelle: str) -> Titr
         session.flush()
         cache[libelle] = titre
     return cache[libelle]
-
 
 def seed(session: Session) -> None:
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
@@ -248,7 +225,7 @@ def seed(session: Session) -> None:
         (offers[1], "Disponible immédiatement pour les permanences.", "envoyee"),
     ):
         session.add(
-            Candidature(
+        Candidature(
                 job_seeker_id=seeker.id,
                 offre_id=offer.id,
                 employer_id=offer.employer_id,
@@ -257,16 +234,13 @@ def seed(session: Session) -> None:
                 date_creation=now - timedelta(days=2),
             )
         )
-
     session.commit()
-
     print(f"Seed terminé : {len(data['companies'])} entreprises, {len(offers)} offres.")
     print(f"  admin      {ADMIN[0]}")
     print(f"  chercheur  {SEEKER[0]}")
     print(f"  employeur  {EMPLOYER_EMAIL}")
     print(f"  mot de passe commun : {DEMO_PASSWORD}")
     print(f"  (compte administrateur : {admin_account.email})")
-
 
 def main() -> int:
     with Session(engine) as session:
@@ -277,7 +251,6 @@ def main() -> int:
             return 0
         seed(session)
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -13,7 +13,6 @@ PLANS: dict[str, dict[str, int]] = {
     "premium": {"price_eur": 900, "radius_km": 50},
 }
 
-
 def plan_of(subscription_type: str) -> dict[str, int]:
     """Formule d'un compte, `none` si la valeur stockée est inconnue."""
     return PLANS.get(subscription_type, PLANS["none"])

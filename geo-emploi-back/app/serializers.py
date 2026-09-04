@@ -11,33 +11,9 @@ deux : aucune route ne manipule un statut de base directement.
 """
 
 from datetime import datetime, timedelta, timezone
-
 from sqlmodel import Session, col, select
-
-from app.models import (
-    Candidature,
-    Competence,
-    Employer,
-    Experience,
-    JobSeeker,
-    JobSeekerCompetence,
-    Offre,
-    OffreCompetence,
-    Signalement,
-    TitrePoste,
-    User,
-)
-from app.schemas import (
-    OFFER_MAX_AGE_DAYS,
-    ApplicationOut,
-    CompanyOut,
-    ExperienceOut,
-    ListingOut,
-    ReportOut,
-    SeekerProfileOut,
-    SessionUser,
-    UserAccountOut,
-)
+from app.models import Candidature, Competence, Employer, Experience, JobSeeker, JobSeekerCompetence, Offre, OffreCompetence, Signalement, TitrePoste, User
+from app.schemas import OFFER_MAX_AGE_DAYS, ApplicationOut, CompanyOut, ExperienceOut, ListingOut, ReportOut, SeekerProfileOut, SessionUser, UserAccountOut
 
 # --------------------------------------------------------- vocabulaires
 # base → API. Les valeurs de gauche sont celles du schéma : ce sont exactement
@@ -73,26 +49,21 @@ TYPES_CONTRAT = {
     "freelance": "freelance",
 }
 
-
 def _invert(table: dict[str, str]) -> dict[str, str]:
     return {value: key for key, value in table.items()}
-
 
 CANDIDATURE_STATUTS_IN = _invert(CANDIDATURE_STATUTS)
 MODERATION_STATUTS_IN = _invert(MODERATION_STATUTS)
 SIGNALEMENT_STATUTS_IN = _invert(SIGNALEMENT_STATUTS)
 TYPES_CONTRAT_IN = _invert(TYPES_CONTRAT)
 
-
 def _aware(moment: datetime) -> datetime:
     """psycopg peut rendre un datetime naïf selon la session : on normalise."""
     return moment if moment.tzinfo else moment.replace(tzinfo=timezone.utc)
 
-
 def is_expired(offer: Offre) -> bool:
     cutoff = datetime.now(timezone.utc) - timedelta(days=OFFER_MAX_AGE_DAYS)
     return offer.archivee_le is not None or _aware(offer.date_offre) < cutoff
-
 
 def listing_status(offer: Offre, *, reported: bool = False) -> str:
     """Statut affiché, dérivé de l'état réel de l'offre.
@@ -111,13 +82,11 @@ def listing_status(offer: Offre, *, reported: bool = False) -> str:
         return "en_attente"
     return "publiee"
 
-
 # --------------------------------------------------------------- agrégation
 def skills_by_offer(db: Session, offer_ids: list[int]) -> dict[int, list[str]]:
     if not offer_ids:
         return {}
-    rows = db.exec(
-        select(OffreCompetence.offre_id, Competence.libelle)
+    rows = db.exec(select(OffreCompetence.offre_id, Competence.libelle)
         .join(Competence, col(Competence.id) == col(OffreCompetence.competence_id))
         .where(col(OffreCompetence.offre_id).in_(offer_ids))
     ).all()
@@ -126,43 +95,31 @@ def skills_by_offer(db: Session, offer_ids: list[int]) -> dict[int, list[str]]:
         grouped.setdefault(offer_id, []).append(libelle)
     return grouped
 
-
 def reported_offer_ids(db: Session, offer_ids: list[int]) -> set[int]:
     if not offer_ids:
         return set()
-    rows = db.exec(
-        select(Signalement.offre_id)
+    rows = db.exec(select(Signalement.offre_id)
         .where(col(Signalement.offre_id).in_(offer_ids))
         .where(Signalement.statut == "ouvert")
     ).all()
     return set(rows)
 
-
 def seeker_skills(db: Session, seeker_id: int) -> list[str]:
-    return list(
-        db.exec(
-            select(Competence.libelle)
-            .join(
-                JobSeekerCompetence,
-                col(JobSeekerCompetence.competence_id) == col(Competence.id),
-            )
-            .where(JobSeekerCompetence.job_seeker_id == seeker_id)
-            .order_by(col(Competence.libelle))
+    return list(db.exec(select(Competence.libelle).join(JobSeekerCompetence,col(JobSeekerCompetence.competence_id) == col(Competence.id),)
+        .where(JobSeekerCompetence.job_seeker_id == seeker_id)
+        .order_by(col(Competence.libelle))
         ).all()
     )
 
-
 def get_or_create_competence(db: Session, libelle: str) -> Competence:
     clean = libelle.strip()
-    competence = db.exec(
-        select(Competence).where(Competence.libelle == clean)
+    competence = db.exec(select(Competence).where(Competence.libelle == clean)
     ).first()
     if competence is None:
         competence = Competence(libelle=clean)
         db.add(competence)
         db.flush()
     return competence
-
 
 def get_or_create_titre_poste(db: Session, libelle: str) -> TitrePoste:
     clean = libelle.strip()
@@ -173,16 +130,8 @@ def get_or_create_titre_poste(db: Session, libelle: str) -> TitrePoste:
         db.flush()
     return titre
 
-
 # ------------------------------------------------------------ sérialisation
-def listing_out(
-    offer: Offre,
-    titre: str,
-    employer: Employer,
-    skills: list[str],
-    *,
-    reported: bool = False,
-) -> ListingOut:
+def listing_out(offer: Offre, titre: str, employer: Employer, skills: list[str], *, reported: bool = False) -> ListingOut:
     return ListingOut(
         id=str(offer.id),
         title=titre,
@@ -203,30 +152,17 @@ def listing_out(
         lng=float(offer.longitude),
     )
 
-
 def listings_out(db: Session, rows: list[tuple[Offre, TitrePoste, Employer]]):
     """Sérialise un lot d'offres en deux requêtes, pas 2×N."""
     offer_ids = [offer.id for offer, _, _ in rows if offer.id is not None]
     skills = skills_by_offer(db, offer_ids)
     reported = reported_offer_ids(db, offer_ids)
     return [
-        listing_out(
-            offer,
-            titre.libelle,
-            employer,
-            skills.get(offer.id or 0, []),
-            reported=offer.id in reported,
-        )
+        listing_out(offer, titre.libelle, employer, skills.get(offer.id or 0, []), reported=offer.id in reported)
         for offer, titre, employer in rows
     ]
 
-
-def application_out(
-    application: Candidature,
-    titre: str,
-    company: str,
-    seeker: JobSeeker,
-) -> ApplicationOut:
+def application_out(application: Candidature, titre: str, company: str, seeker: JobSeeker) -> ApplicationOut:
     return ApplicationOut(
         id=str(application.id),
         listing_id=str(application.offre_id),
@@ -239,7 +175,6 @@ def application_out(
         sent_at=_aware(application.date_creation).date(),
     )
 
-
 def experience_out(experience: Experience, titre: str) -> ExperienceOut:
     end = experience.date_fin.year if experience.date_fin else "aujourd'hui"
     return ExperienceOut(
@@ -250,14 +185,7 @@ def experience_out(experience: Experience, titre: str) -> ExperienceOut:
         description=experience.description or "",
     )
 
-
-def seeker_profile_out(
-    seeker: JobSeeker,
-    account: User,
-    skills: list[str],
-    experiences: list[ExperienceOut],
-    caught: int,
-) -> SeekerProfileOut:
+def seeker_profile_out(seeker: JobSeeker, account: User, skills: list[str], experiences: list[ExperienceOut], caught: int) -> SeekerProfileOut:
     if seeker.disponibilite:
         availability = f"Disponible à partir du {seeker.disponibilite:%d/%m/%Y}"
     else:
@@ -273,7 +201,6 @@ def seeker_profile_out(
         experiences=experiences,
         caught=caught,
     )
-
 
 def company_out(employer: Employer, account: User, plan_price: int, radius_km: int) -> CompanyOut:
     """La formule est portée par le compte (`users.subscription_type`) ; son
@@ -295,7 +222,6 @@ def company_out(employer: Employer, account: User, plan_price: int, radius_km: i
         ),
     )
 
-
 def session_user(account: User, display_name: str) -> SessionUser:
     return SessionUser(
         id=str(account.uid),
@@ -305,7 +231,6 @@ def session_user(account: User, display_name: str) -> SessionUser:
         status=account.status,
         created_at=_aware(account.created_at),
     )
-
 
 def display_name(db: Session, account: User) -> str:
     """Nom affiché dans l'en-tête : raison sociale ou nom de la personne."""
@@ -318,7 +243,6 @@ def display_name(db: Session, account: User) -> str:
     full = f"{account.firstname} {account.lastname}".strip()
     return full or account.email.split("@")[0]
 
-
 def user_account_out(account: User, name: str) -> UserAccountOut:
     return UserAccountOut(
         id=str(account.uid),
@@ -328,7 +252,6 @@ def user_account_out(account: User, name: str) -> UserAccountOut:
         status=account.status,
         created_at=_aware(account.created_at).date(),
     )
-
 
 def report_out(report: Signalement, listing_title: str) -> ReportOut:
     return ReportOut(

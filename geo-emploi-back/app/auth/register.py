@@ -1,8 +1,7 @@
 from email_validator import EmailNotValidError, validate_email
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
-
-from app.auth.user import create_token, hash_password
+from app.auth.user import create_token, password_hash
 from app.config import COOKIE_SECURE, SESSION_COOKIE, TOKEN_EXPIRE_MINUTES
 from app.database import get_db
 from app.models import Employer, JobSeeker, User
@@ -10,7 +9,6 @@ from app.schemas import ROLES, RegisterIn, SessionUser
 from app.serializers import session_user
 
 router = APIRouter(prefix="/api/v1", tags=["auth"])
-
 
 @router.post("/register", response_model=SessionUser, status_code=201)
 def register(data: RegisterIn, response: Response, db: Session = Depends(get_db)):
@@ -30,7 +28,7 @@ def register(data: RegisterIn, response: Response, db: Session = Depends(get_db)
 
     account = User(
         email=email,
-        password=hash_password(data.password),
+        password=password_hash.hash(data.password),
         firstname=data.firstname,
         lastname=data.lastname,
         role=data.role,

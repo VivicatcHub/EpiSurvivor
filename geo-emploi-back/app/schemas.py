@@ -10,7 +10,6 @@ Les valeurs, elles, sont celles de la base (`job_seeker`, `permanent`,
 """
 
 from datetime import date, datetime
-
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
@@ -20,18 +19,12 @@ CONTRACT_TYPES = (
     "internship", "apprenticeship", "freelance",
 )
 LISTING_STATUSES = ("publiee", "en_attente", "signalee", "archivee", "refusee")
-
 # Au-delà, une offre est archivée automatiquement (§2.2 du sujet).
 OFFER_MAX_AGE_DAYS = 30
 
-
 class Payload(BaseModel):
     """Base des DTO : camelCase en sortie, snake_case toléré en entrée."""
-
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, from_attributes=True,
-    )
-
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, from_attributes=True)
 
 # --------------------------------------------------------------------- auth
 class RegisterIn(Payload):
@@ -44,11 +37,9 @@ class RegisterIn(Payload):
     company: str | None = None
     siret: str | None = None
 
-
 class LoginIn(Payload):
     email: str
     password: str
-
 
 class SessionUser(Payload):
     id: str
@@ -57,7 +48,6 @@ class SessionUser(Payload):
     role: str
     status: str
     created_at: datetime
-
 
 # ----------------------------------------------------------------- listings
 class ListingOut(Payload):
@@ -79,7 +69,6 @@ class ListingOut(Payload):
     lat: float
     lng: float
 
-
 class ListingIn(Payload):
     title: str
     contract: str
@@ -94,14 +83,11 @@ class ListingIn(Payload):
     skills: list[str] = []
     insee_code: str | None = None
 
-
 class ApplyIn(Payload):
     message: str = ""
 
-
 class ReportIn(Payload):
     reason: str
-
 
 # ------------------------------------------------------------- applications
 class ApplicationOut(Payload):
@@ -115,10 +101,8 @@ class ApplicationOut(Payload):
     status: str
     sent_at: date
 
-
 class ApplicationStatusIn(Payload):
     status: str
-
 
 # ------------------------------------------------------------------ profils
 class ExperienceOut(Payload):
@@ -127,7 +111,6 @@ class ExperienceOut(Payload):
     company: str
     period: str
     description: str
-
 
 class SeekerProfileOut(Payload):
     id: str
@@ -140,13 +123,11 @@ class SeekerProfileOut(Payload):
     experiences: list[ExperienceOut]
     caught: int
 
-
 class SeekerProfileIn(Payload):
     headline: str | None = None
     city: str | None = None
     available_from: date | None = None
     skills: list[str] | None = None
-
 
 class CompanyOut(Payload):
     id: str
@@ -160,10 +141,8 @@ class CompanyOut(Payload):
     radius_km: int
     subscribed_since: date | None
 
-
 class SubscriptionIn(Payload):
     plan: str
-
 
 # -------------------------------------------------------------------- admin
 class UserAccountOut(Payload):
@@ -174,14 +153,11 @@ class UserAccountOut(Payload):
     status: str
     created_at: date
 
-
 class AccountStatusIn(Payload):
     status: str
 
-
 class ModerationIn(Payload):
     status: str
-
 
 class ReportOut(Payload):
     id: str
@@ -190,7 +166,6 @@ class ReportOut(Payload):
     reason: str
     status: str
     created_at: date
-
 
 class MetricsOut(Payload):
     published_listings: int

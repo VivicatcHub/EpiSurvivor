@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Building2, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CONTRACT_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import type { Listing } from "@/lib/schemas";
 
@@ -23,7 +24,7 @@ export function ListingCard({
     >
       <div className="flex items-start justify-between gap-3">
         <span className="font-medium">{listing.title}</span>
-        <Badge variant="outline">{listing.contract}</Badge>
+        <Badge variant="outline">{CONTRACT_LABELS[listing.contract]}</Badge>
       </div>
       <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
         <Building2 className="size-3.5" aria-hidden />

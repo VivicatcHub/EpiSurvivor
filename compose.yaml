@@ -1,0 +1,74 @@
+# Pile complète GéoEmploi : base, migrations, API, front.
+#
+#   docker compose up --build          # démarre tout
+#   docker compose run --rm api python -m app.seed --reset   # jeu de démo
+#
+# L'ordre de démarrage est contraint : `migrate` attend que PostgreSQL réponde,
+# `api` attend que les migrations soient allées au bout (le backend ne crée
+# aucune table, cf. geo-emploi-back/app/models/).
+
+name: geo-emploi
+
+x-postgres-env: &postgres-env
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: admin
+  POSTGRES_DB: geo_emploi
+
+services:
+  db:
+    image: postgres:16
+    environment: *postgres-env
+    ports:
+      # 5555 côté hôte : laisse un PostgreSQL local sur 5432 tranquille.
+      - "5555:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  migrate:
+    # Contexte a la racine : l'image des migrations a besoin des modeles du
+    # back (geo-emploi-back/app/models), source de verite du schema.
+    build:
+      context: .
+      dockerfile: geo-emploi-db/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg2://admin:admin@db:5432/geo_emploi
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: ./geo-emploi-back
+    environment:
+      DATABASE_URL: postgresql+psycopg2://admin:admin@db:5432/geo_emploi
+      JWT_SECRETKEY: ChangeMe123!
+      JWT_ALGORITHM: HS256
+      TOKEN_EXPIRE_MINUTES: "60"
+      COOKIE_SECURE: "false"
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "1234:1234"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build: ./geo-emploi-front
+    environment:
+      # Nom de service, pas localhost : le front appelle l'API depuis son
+      # propre conteneur, côté serveur.
+      API_URL: http://api:1234
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

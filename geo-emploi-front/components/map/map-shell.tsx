@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentType } from "react";
 import { Crosshair, List, Map as MapIcon } from "lucide-react";
 import { MapSkeleton } from "./map-skeleton";
@@ -29,9 +30,17 @@ const PANES = [
 
 type GeoState = "idle" | "pending" | "refusee" | "indisponible";
 
-export function MapShell({ initialListings }: { initialListings: Listing[] }) {
-  const [listings] = useState(initialListings);
-  const [, setBoundsBox] = useState<BoundsBox | null>(null);
+export function MapShell({
+  initialListings,
+  unavailable = false,
+}: {
+  initialListings: Listing[];
+  unavailable?: boolean;
+}) {
+  const searchParams = useSearchParams();
+  const [listings, setListings] = useState(initialListings);
+  const [boundsBox, setBoundsBox] = useState<BoundsBox | null>(null);
+  const [loading, setLoading] = useState(false);
   const [pane, setPane] = useState(0);
   const [position, setPosition] = useState<{
     lat: number;
@@ -39,6 +48,48 @@ export function MapShell({ initialListings }: { initialListings: Listing[] }) {
   } | null>(null);
   const [geoState, setGeoState] = useState<GeoState>("idle");
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const q = searchParams.get("q") ?? "";
+  const contract = searchParams.get("contract") ?? "";
+
+  /**
+   * Rechargement des offres au déplacement de la carte.
+   *
+   * Débounce à 300 ms pour ne pas tirer une requête par image d'animation, et
+   * AbortController pour qu'une réponse en retard n'écrase pas une plus
+   * fraîche — c'est le bug classique de la recherche par cadre de vue.
+   */
+  useEffect(() => {
+    if (!boundsBox) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      const search = new URLSearchParams({
+        minLat: String(boundsBox.minLat),
+        maxLat: String(boundsBox.maxLat),
+        minLng: String(boundsBox.minLng),
+        maxLng: String(boundsBox.maxLng),
+      });
+      if (q) search.set("q", q);
+      if (contract) search.set("contract", contract);
+
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/offres?${search}`, {
+          signal: controller.signal,
+        });
+        if (response.ok) setListings((await response.json()) as Listing[]);
+      } catch {
+        // Requête annulée ou réseau coupé : on garde les marqueurs affichés.
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [boundsBox, q, contract]);
 
   const sorted = useMemo<{ listing: Listing; km?: number }[]>(() => {
     if (!position) return listings.map((listing) => ({ listing }));
@@ -123,9 +174,12 @@ export function MapShell({ initialListings }: { initialListings: Listing[] }) {
             </p>
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            {listings.length} offre{listings.length > 1 ? "s" : ""}
-            {position ? " triées par distance" : " autour de vous"}
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {loading
+              ? "Mise à jour des offres…"
+              : `${listings.length} offre${listings.length > 1 ? "s" : ""}${
+                  position ? " triées par distance" : " dans cette zone"
+                }`}
           </p>
           <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
             {sorted.map(({ listing, km }) => (
@@ -138,10 +192,17 @@ export function MapShell({ initialListings }: { initialListings: Listing[] }) {
             ))}
             {listings.length === 0 ? (
               <li>
-                <EmptyState
-                  title="Aucune offre dans ce secteur"
-                  description="Déplacez la carte, élargissez le rayon ou retirez un filtre : de nouvelles offres sont publiées chaque jour."
-                />
+                {unavailable ? (
+                  <EmptyState
+                    title="Service momentanément indisponible"
+                    description="Les offres ne peuvent pas être chargées pour l'instant. La carte reste consultable, réessayez dans un instant."
+                  />
+                ) : (
+                  <EmptyState
+                    title="Aucune offre dans ce secteur"
+                    description="Déplacez la carte, élargissez le rayon ou retirez un filtre : de nouvelles offres sont publiées chaque jour."
+                  />
+                )}
               </li>
             ) : null}
           </ul>

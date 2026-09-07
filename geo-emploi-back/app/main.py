@@ -1,25 +1,57 @@
-from fastapi import Request, Depends, FastAPI
-from app.auth import register, login, user, delete
-from app.database import create_db
+from contextlib import asynccontextmanager
+from datetime import datetime, timedelta, timezone
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import Session, col, select
+from app.api import admin, employer, offers, seeker
+from app.auth import delete, login, register
+from app.config import CORS_ORIGINS
+from app.database import engine
+from app.models import Offre
+from app.schemas import OFFER_MAX_AGE_DAYS
 
-app = FastAPI()
-create_db()
+def archive_expired_offers() -> int:
+    """§2.2 : une offre de plus de 30 jours sort de la carte.
 
-@app.get("/")
-def index():
-    return {"message": "hi"}
+    Passe balai au démarrage. En production ce serait une tâche planifiée ;
+    la recherche filtre de toute façon sur la date, donc un retard d'exécution
+    ne rend jamais une offre périmée visible.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=OFFER_MAX_AGE_DAYS)
+    with Session(engine) as session:
+        expired = session.exec(
+            select(Offre)
+            .where(col(Offre.archivee_le).is_(None))
+            .where(col(Offre.date_offre) < cutoff)
+        ).all()
+        for offer in expired:
+            offer.archivee_le = datetime.now(timezone.utc)
+            session.add(offer)
+        session.commit()
+        return len(expired)
 
-@app.get("/health")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Le schéma appartient à Alembic (geo-emploi-db) : aucun create_all ici.
+    archive_expired_offers()
+    yield
+app = FastAPI(title="GéoEmploi API", version="1.0.0", description="API du service GéoEmploi — Ministère du Job et Bonheur.", lifespan=lifespan,)
+"""app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)"""
+
+@app.get("/health", tags=["meta"])
 def health():
-    return {"message": "OK"}
-
-# TODO: user.User bruh find a better name for user.py
-# TODO: remove /me and make something like /api/v1/profile
-@app.get("/me", dependencies=[Depends(user.CheckAuth)])
-async def me(request: Request, user: user.User = Depends(user.CheckAuth)) -> str:
-    print(user)
-    return "e"
+    return {"status": "ok"}
 
 app.include_router(register.router)
 app.include_router(login.router)
 app.include_router(delete.router)
+app.include_router(offers.router)
+app.include_router(seeker.router)
+app.include_router(employer.router)
+app.include_router(admin.router)

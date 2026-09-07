@@ -12,11 +12,13 @@ import { ApplyButton } from "@/components/listings/apply-button";
 import { ReportDialog } from "@/components/listings/report-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getListing, getPublicListings } from "@/lib/mock-data";
+import { getListing, searchListings } from "@/lib/api/offers";
+import { getUser } from "@/lib/dal";
+import { CONTRACT_LABELS, LISTING_STATUS_LABELS, formatDate } from "@/lib/labels";
 
 export async function generateMetadata({ params }: PageProps<"/offres/[id]">) {
   const { id } = await params;
-  const listing = getListing(id);
+  const listing = await getListing(id);
   if (!listing) return { title: "Offre introuvable" };
   return { title: `${listing.title} — ${listing.city}` };
 }
@@ -25,13 +27,13 @@ export default async function ListingPage({
   params,
 }: PageProps<"/offres/[id]">) {
   const { id } = await params;
-  const listing = getListing(id);
+  const [listing, user] = await Promise.all([getListing(id), getUser()]);
   if (!listing) notFound();
 
-  const similar = getPublicListings()
-    .filter(
-      (other) => other.id !== listing.id && other.contract === listing.contract,
-    )
+  // Offres similaires : même type de contrat, demandées au backend plutôt que
+  // filtrées après coup sur un lot complet.
+  const similar = (await searchListings({ contract: listing.contract }))
+    .filter((other) => other.id !== listing.id)
     .slice(0, 3);
 
   return (
@@ -46,7 +48,7 @@ export default async function ListingPage({
 
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{listing.contract}</Badge>
+          <Badge variant="outline">{CONTRACT_LABELS[listing.contract]}</Badge>
           <Badge variant="secondary">{listing.salary}</Badge>
         </div>
         <h1 className="text-3xl font-semibold tracking-tight text-primary">
@@ -63,14 +65,20 @@ export default async function ListingPage({
           </span>
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays className="size-4" aria-hidden />
-            Publiée le {listing.publishedAt}
+            Publiée le {formatDate(listing.publishedAt)}
           </span>
         </p>
         <div className="flex flex-wrap gap-2 pt-2">
-          <ApplyButton listingId={listing.id} />
-          <ReportDialog listingTitle={listing.title} />
+          <ApplyButton listingId={listing.id} role={user?.role ?? null} />
+          <ReportDialog listingId={listing.id} listingTitle={listing.title} />
         </div>
       </header>
+
+      {listing.status !== "publiee" ? (
+        <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
+          Statut de cette offre : {LISTING_STATUS_LABELS[listing.status]}.
+        </p>
+      ) : null}
 
       <section className="space-y-3">
         <h2 className="text-lg font-medium">Informations</h2>

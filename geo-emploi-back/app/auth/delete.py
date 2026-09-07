@@ -1,13 +1,29 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlmodel import Session, select
-from app.auth import user
-from app.auth.user import User
+from fastapi import APIRouter, Depends, Response
+from sqlmodel import Session
+
+from app.auth.user import CheckAuth
+from app.config import SESSION_COOKIE
 from app.database import get_db
+from app.models import User
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1", tags=["auth"])
 
-@router.delete("/api/v1/deleteaccount", dependencies=[Depends(user.CheckAuth)])
-async def delete(user: user.User = Depends(user.CheckAuth), db: Session = Depends(get_db)):
-    db.delete(user)
+
+@router.delete("/deleteaccount")
+async def delete_account(
+    response: Response,
+    account: User = Depends(CheckAuth),
+    db: Session = Depends(get_db),
+):
+    """RGPD §3.3 : suppression réelle du compte.
+
+    Les profils, offres et candidatures liés partent avec, via les
+    ON DELETE CASCADE du schéma (app/models/) — rien à supprimer à la main
+    ici. Les signalements déposés par le compte survivent, détachés
+    (ON DELETE SET NULL) : la modération en cours n'est pas effaçable par la
+    personne signalée.
+    """
+    db.delete(account)
     db.commit()
+    response.delete_cookie(key=SESSION_COOKIE, path="/")
     return {"message": "Account deleted"}

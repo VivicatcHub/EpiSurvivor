@@ -4,8 +4,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CONTRACT_TYPES } from "@/lib/mock-data";
+import { CONTRACT_LABELS, CONTRACT_TYPES } from "@/lib/labels";
 import { cn } from "@/lib/utils";
+import type { ContractType } from "@/lib/schemas";
 
 export function ListingFilters() {
   const router = useRouter();
@@ -53,7 +54,9 @@ export function ListingFilters() {
                 : "hover:bg-muted",
             )}
           >
-            {value === "toutes" ? "Tous contrats" : value}
+            {value === "toutes"
+              ? "Tous contrats"
+              : CONTRACT_LABELS[value as ContractType]}
           </button>
         ))}
       </div>

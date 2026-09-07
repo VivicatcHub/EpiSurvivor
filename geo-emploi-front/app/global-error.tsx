@@ -27,7 +27,6 @@ export default function GlobalError({
       >
         <title>Service indisponible — GéoEmploi</title>
         <main style={{ maxWidth: "42rem", margin: "0 auto", padding: "2rem" }}>
-          {/* Bloc-marque, sur fond plein, zone de protection incluse. */}
           <div
             style={{
               display: "flex",
@@ -118,7 +117,6 @@ export default function GlobalError({
               fontFamily: TITRE,
               fontSize: "0.95rem",
               fontWeight: 500,
-              /* Le bleu institutionnel n'est jamais un fond de bouton. */
               background: ENCRE,
               color: "#FFFFFF",
               border: "none",

@@ -41,14 +41,12 @@ export function SiteHeader({ user }: { user: SessionUser | null }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
-      {/* Filet tricolore de la charte, repris du bloc-marque. */}
       <div aria-hidden className="flex h-1">
         <span className="flex-1 bg-tricolore-bleu" />
         <span className="flex-1 bg-tricolore-blanc" />
         <span className="flex-1 bg-tricolore-rouge" />
       </div>
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-6 px-4">
-        {/* Bloc-marque en haut à gauche, zone de protection comprise. */}
         <Link href="/" aria-label="GéoEmploi — accueil" className="-ml-1">
           <BrandBlock size="sm" />
         </Link>

@@ -111,8 +111,7 @@ export default async function AdminPage() {
                     <TableCell>
                       <Badge
                         variant={
-                          listing.status === "signalee" ||
-                          listing.status === "refusee"
+                          listing.status === "signalee"
                             ? "destructive"
                             : listing.status === "publiee"
                               ? "secondary"
@@ -227,8 +226,6 @@ export default async function AdminPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {/* Un administrateur ne peut pas se suspendre lui-même :
-                          le backend le refuse, on n'offre pas le geste. */}
                       {user.id === admin.id ? (
                         <span className="text-xs text-muted-foreground">
                           Vous

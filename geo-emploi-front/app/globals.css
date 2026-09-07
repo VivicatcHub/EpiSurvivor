@@ -20,13 +20,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Marianne (titres) — repli sur la sans-serif embarquée tant que les
-     fichiers licenciés de la charte ne sont pas fournis. */
-  --font-heading: "Marianne", var(--font-geist-sans), Arial, Helvetica,
-    sans-serif;
-  /* Spectral (corps de texte) */
+  --font-heading:
+    "Marianne", var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-serif: var(--font-spectral), Georgia, "Times New Roman", serif;
-  /* Sans-serif réservée aux éléments d'interface (boutons, libellés, tableaux) */
   --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
@@ -77,9 +73,8 @@
 }
 
 :root {
-  /* Couleurs de la charte */
-  --charte-bleu: #1b3a6b; /* bleu institutionnel */
-  --encre: #11172e; /* fond du bloc-marque, utilisé pour les boutons pleins */
+  --charte-bleu: #1b3a6b;
+  --encre: #11172e;
   --encre-foreground: #ffffff;
   --tricolore-bleu: #1d3a90;
   --tricolore-blanc: #f1eeea;
@@ -92,7 +87,6 @@
   --popover: #ffffff;
   --popover-foreground: #11172e;
 
-  /* Primaire : titres, liens, icônes, états actifs. Jamais en fond de bouton. */
   --primary: var(--charte-bleu);
   --primary-foreground: #ffffff;
   --primary-surface: #e8eef7;
@@ -125,7 +119,7 @@
 }
 
 .dark {
-  --charte-bleu: #7ea3d4; /* variante claire, contraste AA sur fond encre */
+  --charte-bleu: #7ea3d4;
   --encre: #f1eeea;
   --encre-foreground: #11172e;
 
@@ -171,11 +165,11 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Règle 2 de la charte : Spectral pour le corps de texte… */
+
   html {
     font-family: var(--font-serif);
   }
-  /* …Marianne pour les titres. */
+
   h1,
   h2,
   h3,
@@ -187,8 +181,7 @@
     font-weight: 600;
     letter-spacing: -0.01em;
   }
-  /* Les éléments d'interface (contrôles, libellés, données tabulaires) restent
-     en sans-serif : la charte n'impose Spectral que sur le corps de texte. */
+
   button,
   input,
   select,
@@ -201,15 +194,12 @@
   }
 }
 
-/* Leaflet panes default to z-index 400-1000 and would sit above the app chrome
-   (sticky header, dialogs). Keep the map inside the normal stacking order. */
 .leaflet-pane,
 .leaflet-top,
 .leaflet-bottom {
   z-index: 10;
 }
 
-/* La carte est le premier écran vu par la presse : elle porte aussi la charte. */
 .leaflet-container {
   font-family: var(--font-sans);
 }
@@ -232,7 +222,6 @@
   background: var(--background);
 }
 
-/* Le marqueur est un divIcon : neutraliser le fond blanc par défaut de Leaflet. */
 .geoemploi-marker {
   background: transparent;
   border: 0;

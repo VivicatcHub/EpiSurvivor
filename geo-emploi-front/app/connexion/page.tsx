@@ -7,8 +7,6 @@ export const metadata = { title: "Connexion" };
 export default function ConnexionPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-16">
-      {/* Bloc-marque en haut à gauche du bloc de contenu, zone de protection
-          comprise : la page de connexion est chartée comme le reste du service. */}
       <BrandBlock size="md" className="mb-8 self-start" />
       <h1 className="text-2xl font-semibold tracking-tight text-primary">
         Connexion à GéoEmploi

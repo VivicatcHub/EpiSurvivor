@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Building2, Map, Trophy } from "lucide-react";
+import { Building2, MapPinned, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,7 +14,7 @@ const AUDIENCES = [
     icon: Map,
     title: "Chercheur d'emploi",
     description:
-      "Explorez la carte, attrapez les offres autour de vous, collectez des badges et débloquez le Permis de Travailler JEB.",
+      "Explorez la carte des offres autour de vous et postulez en un geste.",
     href: "/offres",
     cta: "Ouvrir la carte",
   },
@@ -22,9 +22,9 @@ const AUDIENCES = [
     icon: Building2,
     title: "Employeur",
     description:
-      "Publiez vos offres géolocalisées, choisissez votre rayon de diffusion et suivez les candidatures reçues.",
-    href: "/employeur/abonnement",
-    cta: "Voir les abonnements",
+      "Publiez gratuitement vos offres géolocalisées, choisissez votre rayon de diffusion et suivez les candidatures reçues.",
+    href: "/employeur",
+    cta: "Publier une offre",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function Home() {
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-16">
       <section className="max-w-2xl space-y-5">
         <p className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs text-muted-foreground ring-1 ring-foreground/10">
-          <Trophy className="size-3.5 text-primary" aria-hidden />
+          <MapPinned className="size-3.5 text-primary" aria-hidden />
           Ministère du Job et Bonheur — service public GéoEmploi
         </p>
         <h1 className="text-4xl font-semibold tracking-tight text-primary text-balance sm:text-5xl">
@@ -41,7 +41,7 @@ export default function Home() {
         </h1>
         <p className="text-lg text-muted-foreground text-pretty">
           GéoEmploi affiche les offres géolocalisées sur une carte ouverte à
-          tous. Approchez-vous, attrapez l&apos;offre, postulez en un geste.
+          tous, gratuitement pour les employeurs comme pour les candidats.
         </p>
         <div className="flex flex-wrap gap-3">
           <Button size="lg" render={<Link href="/offres" />}>

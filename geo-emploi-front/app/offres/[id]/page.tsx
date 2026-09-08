@@ -14,7 +14,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getListing, searchListings } from "@/lib/api/offers";
 import { getUser } from "@/lib/dal";
-import { CONTRACT_LABELS, LISTING_STATUS_LABELS, formatDate } from "@/lib/labels";
+import {
+  CONTRACT_LABELS,
+  LISTING_STATUS_LABELS,
+  formatDate,
+} from "@/lib/labels";
 
 export async function generateMetadata({ params }: PageProps<"/offres/[id]">) {
   const { id } = await params;
@@ -30,8 +34,6 @@ export default async function ListingPage({
   const [listing, user] = await Promise.all([getListing(id), getUser()]);
   if (!listing) notFound();
 
-  // Offres similaires : même type de contrat, demandées au backend plutôt que
-  // filtrées après coup sur un lot complet.
   const similar = (await searchListings({ contract: listing.contract }))
     .filter((other) => other.id !== listing.id)
     .slice(0, 3);

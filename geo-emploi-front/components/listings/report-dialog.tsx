@@ -18,7 +18,6 @@ function Submit() {
   );
 }
 
-/** §5 : signaler une offre frauduleuse, sans compte requis. */
 export function ReportDialog({
   listingId,
   listingTitle,

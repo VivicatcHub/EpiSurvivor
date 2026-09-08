@@ -12,7 +12,6 @@ export type FormState = { error?: string; ok?: boolean };
 
 const ROLES: Role[] = ["job_seeker", "employer"];
 
-/** N'accepte qu'un chemin interne : `?next=https://evil.tld` est ignoré. */
 function safeNext(value: FormDataEntryValue | null): string | null {
   const next = typeof value === "string" ? value : "";
   return next.startsWith("/") && !next.startsWith("//") ? next : null;
@@ -43,7 +42,6 @@ export async function signIn(
   });
   if ("error" in result) return { error: result.error };
 
-  // redirect() lève une exception de contrôle : jamais dans un try/catch.
   revalidatePath("/", "layout");
   redirect(safeNext(formData.get("next")) ?? ROLE_HOME[result.user.role]);
 }
@@ -66,7 +64,6 @@ export async function signUp(
     email: String(formData.get("email") ?? ""),
     password,
     role,
-    // Une personne saisit « Prénom Nom », une entreprise sa raison sociale.
     firstname: firstname || name,
     lastname: rest.join(" ") || "—",
     company: role === "employer" ? name : null,
@@ -77,7 +74,9 @@ export async function signUp(
   revalidatePath("/", "layout");
   redirect(
     safeNext(formData.get("next")) ??
-      (role === "employer" ? "/employeur/abonnement" : ROLE_HOME.job_seeker),
+      (role === "employer"
+        ? "/employeur/offres/nouvelle"
+        : ROLE_HOME.job_seeker),
   );
 }
 
@@ -88,18 +87,18 @@ export async function signOut() {
   redirect("/");
 }
 
-/** RGPD §3.3 : suppression du compte, depuis le profil. */
 export async function deleteAccount(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
   const user = await requireUser();
-  // Confirmation par saisie de l'email : un clic seul ne suffit pas.
   if (String(formData.get("confirm") ?? "").trim() !== user.email) {
     return { error: "Saisissez votre adresse e-mail pour confirmer." };
   }
 
-  const response = await apiFetch("/api/v1/deleteaccount", { method: "DELETE" });
+  const response = await apiFetch("/api/v1/deleteaccount", {
+    method: "DELETE",
+  });
   if (!response.ok) return { error: "Suppression impossible, réessayez." };
 
   await destroySession();

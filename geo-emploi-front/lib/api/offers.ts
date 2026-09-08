@@ -1,10 +1,6 @@
 import "server-only";
 import { api } from "@/lib/api/client";
-import type {
-  BoundsBox,
-  Listing,
-  ListingFilters,
-} from "@/lib/schemas";
+import type { BoundsBox, Listing, ListingFilters } from "@/lib/schemas";
 
 function query(params: Record<string, string | number | undefined>): string {
   const search = new URLSearchParams();
@@ -15,7 +11,6 @@ function query(params: Record<string, string | number | undefined>): string {
   return qs ? `?${qs}` : "";
 }
 
-/** Recherche publique : ni compte ni session (§2.2). */
 export async function searchListings(
   filters: ListingFilters & Partial<BoundsBox> = {},
 ): Promise<Listing[]> {
@@ -31,7 +26,6 @@ export async function searchListings(
   );
 }
 
-/** `null` plutôt qu'une exception : la page appelle `notFound()`. */
 export async function getListing(id: string): Promise<Listing | null> {
   try {
     return await api<Listing>(`/api/v1/offers/${encodeURIComponent(id)}`);

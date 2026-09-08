@@ -1,18 +1,9 @@
-/**
- * Traduction des valeurs de l'API en libellés d'interface.
- *
- * C'est le seul endroit où « permanent » devient « CDI ». Les composants
- * manipulent les valeurs de l'API et n'affichent que par ici : renommer un
- * libellé ne demande jamais de toucher à une requête.
- */
-
 import type {
   ApplicationStatus,
   ContractType,
   ListingStatus,
   Role,
   AccountStatus,
-  SubscriptionPlan,
 } from "@/lib/schemas";
 
 export const CONTRACT_TYPES: ContractType[] = [
@@ -60,50 +51,12 @@ export const ROLE_LABELS: Record<Role, string> = {
   admin: "Administration",
 };
 
-export const PLAN_LABELS: Record<SubscriptionPlan, string> = {
-  none: "Aucun",
-  standard: "Standard",
-  premium: "Premium",
-};
-
-/** Page d'accueil de chaque rôle après connexion. */
 export const ROLE_HOME: Record<Role, string> = {
   job_seeker: "/offres",
   employer: "/employeur",
   admin: "/admin",
 };
 
-/** Objectif du « Permis de Travailler JEB » (§ gamification du sujet). */
-export const WORK_PERMIT_GOAL = 10;
-
-export const BADGES = [
-  {
-    id: "b1",
-    label: "Première prise",
-    description: "Attrapez votre première offre sur la carte.",
-    goal: 1,
-  },
-  {
-    id: "b2",
-    label: "Chasseur régulier",
-    description: "Trois offres attrapées.",
-    goal: 3,
-  },
-  {
-    id: "b3",
-    label: "Arpenteur",
-    description: "Cinq offres attrapées dans deux villes différentes.",
-    goal: 5,
-  },
-  {
-    id: "b4",
-    label: "Permis de Travailler JEB",
-    description: "Dix offres attrapées : le sésame du Ministère.",
-    goal: WORK_PERMIT_GOAL,
-  },
-];
-
-/** Dates de l'API : ISO en entrée, format français en sortie. */
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return "—";
   const date = new Date(iso);

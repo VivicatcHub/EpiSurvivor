@@ -2,11 +2,9 @@ import Link from "next/link";
 import { DeleteAccountForm } from "@/components/profile/delete-account-form";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
-import { BadgeGrid } from "@/components/profile/badge-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -17,12 +15,7 @@ import {
 } from "@/components/ui/table";
 import { getSeekerApplications, getSeekerProfile } from "@/lib/api/account";
 import { requireRole } from "@/lib/dal";
-import {
-  APPLICATION_STATUS_LABELS,
-  BADGES,
-  WORK_PERMIT_GOAL,
-  formatDate,
-} from "@/lib/labels";
+import { APPLICATION_STATUS_LABELS, formatDate } from "@/lib/labels";
 
 export const metadata = { title: "Mon profil" };
 
@@ -32,7 +25,6 @@ export default async function ProfilPage() {
     getSeekerProfile(),
     getSeekerApplications(),
   ]);
-  const remaining = Math.max(0, WORK_PERMIT_GOAL - seeker.caught);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 space-y-10 px-4 py-10">
@@ -43,22 +35,12 @@ export default async function ProfilPage() {
           .join(" · ")}
         actions={
           <Button variant="outline" render={<Link href="/offres" />}>
-            Attraper des offres
+            Voir les offres
           </Button>
         }
       />
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Offres attrapées
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {seeker.caught}
-          </CardContent>
-        </Card>
+      <section className="grid gap-4 sm:max-w-xs">
         <Card size="sm">
           <CardHeader>
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -69,26 +51,6 @@ export default async function ProfilPage() {
             {applications.length}
           </CardContent>
         </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Permis de Travailler JEB
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <Progress value={(seeker.caught / WORK_PERMIT_GOAL) * 100} />
-            <p>
-              {remaining === 0
-                ? "Débloqué 🎉"
-                : `Encore ${remaining} offre${remaining > 1 ? "s" : ""} à attraper`}
-            </p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Badges</h2>
-        <BadgeGrid badges={BADGES} caught={seeker.caught} />
       </section>
 
       <section className="grid gap-8 md:grid-cols-2">

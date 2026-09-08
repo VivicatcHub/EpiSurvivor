@@ -1,8 +1,3 @@
-import Link from "next/link";
-import { PageHeader } from "@/components/layout/page-header";
-import { PlanForm } from "@/components/employer/plan-form";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,9 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PageHeader } from "@/components/layout/page-header";
 import { getCompany } from "@/lib/api/account";
 import { requireRole } from "@/lib/dal";
-import { PLAN_LABELS, formatDate } from "@/lib/labels";
 
 export const metadata = { title: "Profil entreprise" };
 
@@ -32,7 +27,7 @@ export default async function EmployeurProfilPage() {
     <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-10">
       <PageHeader
         title="Profil entreprise"
-        description="Informations de l'entreprise et gestion de l'abonnement."
+        description="Informations de l'entreprise et publication d'offres."
       />
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -55,41 +50,16 @@ export default async function EmployeurProfilPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Abonnement
-              <Badge variant="secondary">{PLAN_LABELS[company.plan]}</Badge>
-            </CardTitle>
+            <CardTitle>Publication d&apos;offres</CardTitle>
             <CardDescription>
-              {company.subscribedSince
-                ? `Actif depuis le ${formatDate(company.subscribedSince)}.`
-                : "Aucun abonnement en cours."}
+              Gratuite, sans abonnement.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-3xl font-semibold">
-              {company.planPrice} €
-              <span className="text-base font-normal text-muted-foreground">
-                {" "}
-                / mois
-              </span>
-            </p>
+          <CardContent>
             <p className="text-sm text-muted-foreground">
-              Rayon de diffusion inclus : {company.radiusKm} km autour de vos
-              établissements.
+              Rayon de diffusion : jusqu&apos;à {company.radiusKm} km autour de
+              vos établissements.
             </p>
-            <div className="flex flex-wrap gap-2">
-              <Button size="sm" render={<Link href="/employeur/abonnement" />}>
-                Changer de formule
-              </Button>
-              {company.plan === "none" ? null : (
-                <PlanForm
-                  plan="none"
-                  label="Résilier"
-                  variant="destructive"
-                  pendingLabel="Résiliation…"
-                />
-              )}
-            </div>
           </CardContent>
         </Card>
       </div>

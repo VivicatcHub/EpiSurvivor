@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, col, or_, select
 from app.auth.user import CheckEmployer, CheckOptionalAuth, CheckSeeker, employer_of, seeker_of
 from app.database import get_db
+from app.geocoding import commune_centroid
 from app.models import Candidature, Employer, Offre, OffreCompetence, Signalement, TitrePoste, User
-from app.plans import plan_of
-from app.schemas import OFFER_MAX_AGE_DAYS, ApplicationOut, ApplyIn, ListingIn, ListingOut ReportIn
+from app.schemas import MAX_RADIUS_KM, OFFER_MAX_AGE_DAYS, ApplicationOut, ApplyIn, ListingIn, ListingOut, ReportIn
 from app.serializers import TYPES_CONTRAT_IN, application_out, get_or_create_competence, get_or_create_titre_poste, listing_out, listings_out, reported_offer_ids, skills_by_offer
 
 router = APIRouter(prefix="/api/v1/offers", tags=["offers"])
@@ -70,31 +70,32 @@ def get_offer(offer_id: int, db: Session = Depends(get_db)):
 @router.post("", response_model=ListingOut, status_code=201)
 def create_offer(data: ListingIn, account: User = Depends(CheckEmployer), db: Session = Depends(get_db)):
     employer = employer_of(db, account)
-    plan = plan_of(account.subscription_type)
-    if account.subscription_type == "none":
-        raise HTTPException(status_code=402, detail="Un abonnement est nécessaire pour publier une offre")
     type_contrat = TYPES_CONTRAT_IN.get(data.contract)
     if type_contrat is None:
         raise HTTPException(status_code=400, detail="Type de contrat inconnu")
-    if data.radius_km > plan["radius_km"]:
+    if data.radius_km > MAX_RADIUS_KM:
         raise HTTPException(
             status_code=400,
-            detail=(
-                f"Votre formule couvre {plan['radius_km']} km de rayon "
-                f"de diffusion, pas {data.radius_km} km"
-            ),
+            detail=f"Le rayon de diffusion ne peut pas dépasser {MAX_RADIUS_KM} km",
         )
+    # Le code INSEE vient d'un géocodeur ; à défaut le code postal en tient
+    # lieu. La position stockée n'est jamais celle saisie par l'employeur :
+    # elle est recalculée au centroïde de la commune (§3.2 — la précision ne
+    # descend jamais à la rue).
+    code_insee = (data.insee_code or data.postal_code or "")[:5].rjust(5, "0")
+    centroid = commune_centroid(code_insee, data.postal_code, data.city)
+    if centroid is None:
+        raise HTTPException(status_code=400, detail="Code postal ou commune introuvable")
+    latitude, longitude = centroid
     titre = get_or_create_titre_poste(db, data.title)
     offer = Offre(
         employer_id=employer.id,
         titre_poste_id=titre.id,
         description=data.description,
         type_contrat=type_contrat,
-        # Le code INSEE viendra d'un géocodeur ; à défaut le code postal en
-        # tient lieu, la précision commune reste assurée (§3.2).
-        code_insee=(data.insee_code or data.postal_code or "")[:5].rjust(5, "0"),
-        latitude=data.lat,
-        longitude=data.lng,
+        code_insee=code_insee,
+        latitude=latitude,
+        longitude=longitude,
         perimetre_km=data.radius_km,
         salaire=data.salary,
         adresse=data.address,

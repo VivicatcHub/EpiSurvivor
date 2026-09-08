@@ -1,38 +1,18 @@
-"""Espace employeur : entreprise, abonnement, offres publiées, candidatures."""
+"""Espace employeur : entreprise, offres publiées, candidatures."""
 
-from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, col, select
 from app.auth.user import CheckEmployer, employer_of
 from app.database import get_db
 from app.models import Candidature, Employer, JobSeeker, Offre, TitrePoste, User
-from app.plans import PLANS, plan_of
-from app.schemas import ApplicationOut, ApplicationStatusIn, CompanyOut, ListingOut,SubscriptionIn
+from app.schemas import ApplicationOut, ApplicationStatusIn, CompanyOut, ListingOut, MAX_RADIUS_KM
 from app.serializers import CANDIDATURE_STATUTS_IN, application_out, company_out, listings_out
 
 router = APIRouter(prefix="/api/v1/employer", tags=["employer"])
 
-def _company(db: Session, account: User, employer: Employer) -> CompanyOut:
-    plan = plan_of(account.subscription_type)
-    return company_out(employer, account, plan["price_eur"], plan["radius_km"])
-
 @router.get("/company", response_model=CompanyOut)
 def get_company(account: User = Depends(CheckEmployer), db: Session = Depends(get_db)):
-    return _company(db, account, employer_of(db, account))
-
-@router.put("/subscription", response_model=CompanyOut)
-def set_subscription(data: SubscriptionIn, account: User = Depends(CheckEmployer), db: Session = Depends(get_db)):
-    if data.plan not in PLANS:
-        raise HTTPException(status_code=400, detail="Formule inconnue")
-    employer = employer_of(db, account)
-    account.subscription_type = data.plan
-    employer.abonne_depuis = None if data.plan == "none" else (employer.abonne_depuis or datetime.now(timezone.utc))
-    db.add(account)
-    db.add(employer)
-    db.commit()
-    db.refresh(account)
-    db.refresh(employer)
-    return _company(db, account, employer)
+    return company_out(employer_of(db, account), account, MAX_RADIUS_KM)
 
 @router.get("/offers", response_model=list[ListingOut])
 def my_offers(account: User = Depends(CheckEmployer), db: Session = Depends(get_db)):

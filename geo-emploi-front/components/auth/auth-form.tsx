@@ -33,8 +33,6 @@ export function AuthForm({ mode }: { mode: "connexion" | "inscription" }) {
     {},
   );
 
-  // Redirection post-connexion. `signIn` refuse toute valeur qui ne soit pas
-  // un chemin interne : le champ n'est pas un vecteur d'open redirect.
   const next = searchParams.get("next");
 
   return (
@@ -124,8 +122,7 @@ export function AuthForm({ mode }: { mode: "connexion" | "inscription" }) {
 
       {isSignUp && role === "employer" ? (
         <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-          La publication d&apos;offres nécessite un abonnement à 400 € / mois.
-          Vous choisirez votre formule à l&apos;étape suivante.
+          La publication d&apos;offres est gratuite.
         </p>
       ) : null}
 

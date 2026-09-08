@@ -62,7 +62,6 @@ def _account(
     role: str,
     firstname: str,
     lastname: str,
-    subscription: str = "none",
 ) -> User:
     account = User(
         email=email,
@@ -71,7 +70,6 @@ def _account(
         lastname=lastname,
         role=role,
         status="active",
-        subscription_type=subscription,
     )
     session.add(account)
     session.flush()
@@ -148,9 +146,7 @@ def seed(session: Session) -> None:
             if index == 0
             else f"rh+{company['key']}@geoemploi.example.fr"
         )
-        account = _account(
-            session, email, "employer", "Service", "Recrutement", "standard"
-        )
+        account = _account(session, email, "employer", "Service", "Recrutement")
         employer = Employer(
             compte_id=account.uid,
             nom=company["name"],
@@ -159,7 +155,6 @@ def seed(session: Session) -> None:
             secteur="Édition de logiciels" if index == 0 else None,
             ville=company["city"],
             email_contact=email,
-            abonne_depuis=now - timedelta(days=90),
         )
         session.add(employer)
         session.flush()
@@ -168,15 +163,10 @@ def seed(session: Session) -> None:
     # -------------------------------------------------------------- offres
     # Statuts de la fixture → vocabulaire de la base (cf. serializers.py).
     STATUT = {"publiee": "validee", "en_attente": "en_attente", "signalee": "validee"}
-    # Toutes les entreprises de démonstration sont en formule standard.
-    PLAN_RADIUS_KM = 15
     offers: list[Offre] = []
     for item in data["offers"]:
         employer = employers[item["companyKey"]]
-        # Les formules ne couvrent que 15 km : la fixture est ramenée au
-        # plafond plutôt que de créer des offres qu'aucun employeur ne
-        # pourrait publier via l'API.
-        radius = min(item["radiusKm"], PLAN_RADIUS_KM)
+        radius = item["radiusKm"]
         offer = Offre(
             employer_id=employer.id,
             titre_poste_id=_titre(session, titres, item["title"]).id,

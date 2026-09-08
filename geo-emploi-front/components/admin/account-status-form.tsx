@@ -16,7 +16,6 @@ function Submit({ suspended }: { suspended: boolean }) {
   );
 }
 
-/** Suspendre ou réactiver un compte : l'action bascule le statut courant. */
 export function AccountStatusForm({
   accountId,
   status,

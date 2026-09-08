@@ -9,7 +9,6 @@ function failure(error: unknown, fallback: string): FormState {
   return { error: error instanceof ApiError ? error.message : fallback };
 }
 
-// ------------------------------------------------------------------ employeur
 export async function setApplicationStatus(
   _prev: FormState,
   formData: FormData,
@@ -28,25 +27,6 @@ export async function setApplicationStatus(
   return { ok: true };
 }
 
-export async function setSubscription(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  await requireRole("employer", "/employeur/abonnement");
-  try {
-    await api("/api/v1/employer/subscription", {
-      method: "PUT",
-      ...json({ plan: String(formData.get("plan") ?? "") }),
-    });
-  } catch (error) {
-    return failure(error, "Changement de formule impossible.");
-  }
-  revalidatePath("/employeur/profil");
-  revalidatePath("/employeur/abonnement");
-  return { ok: true };
-}
-
-// ---------------------------------------------------------------------- admin
 export async function moderateListing(
   _prev: FormState,
   formData: FormData,

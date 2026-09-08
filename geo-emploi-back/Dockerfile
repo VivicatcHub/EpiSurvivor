@@ -1,7 +1,5 @@
 FROM python:3.12-slim
 
-# psycopg2-binary embarque ses libs, mais le client psql sert au diagnostic
-# et à l'attente de la base au démarrage.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends postgresql-client \
     && rm -rf /var/lib/apt/lists/*

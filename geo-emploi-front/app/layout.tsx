@@ -47,8 +47,6 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Une seule lecture de session par rendu (`cache` dans lib/dal.ts) ; sans
-  // cookie, aucun appel réseau n'est émis — le visiteur anonyme ne paie rien.
   const user = await getUser();
 
   return (

@@ -45,7 +45,7 @@ function BoundsWatcher({
 function Recenter({ focus }: { focus?: { lat: number; lng: number } | null }) {
   const map = useMap();
   useEffect(() => {
-    if (focus) map.flyTo([focus.lat, focus.lng], 18, { duration: 4.2 });
+    if (focus) map.flyTo([focus.lat, focus.lng], 18, { duration: 0.42 });
   }, [focus, map]);
   return null;
 }

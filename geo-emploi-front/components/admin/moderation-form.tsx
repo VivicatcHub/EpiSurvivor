@@ -35,12 +35,6 @@ function Actions({ status }: { status?: ListingStatus }) {
   );
 }
 
-/**
- * Valider ou retirer une offre.
- *
- * Le statut voulu est porté par le bouton (`name`/`value`) : un seul
- * formulaire, deux issues, et la décision arrive dans le FormData.
- */
 export function ModerationForm({
   listingId,
   status,

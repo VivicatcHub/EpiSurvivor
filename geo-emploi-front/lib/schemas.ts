@@ -1,14 +1,3 @@
-/**
- * Contrat de l'API GéoEmploi.
- *
- * Les valeurs sont celles de la base (`job_seeker`, `permanent`, `in_review`…)
- * et non des libellés français : le backend renvoie exactement ces chaînes,
- * l'affichage passe par `lib/labels.ts`. Un seul vocabulaire de bout en bout,
- * une seule table de traduction, à la frontière de l'écran.
- *
- * Côté serveur, `app/schemas.py` décrit les mêmes objets en camelCase.
- */
-
 export type Role = "job_seeker" | "employer" | "admin";
 
 export type ContractType =
@@ -34,8 +23,6 @@ export type ApplicationStatus =
   | "in_review"
   | "accepted"
   | "rejected";
-
-export type SubscriptionPlan = "none" | "standard" | "premium";
 
 export type SessionUser = {
   id: string;
@@ -86,13 +73,6 @@ export type Experience = {
   description: string;
 };
 
-export type Badge = {
-  id: string;
-  label: string;
-  description: string;
-  goal: number;
-};
-
 export type SeekerProfile = {
   id: string;
   name: string;
@@ -102,7 +82,6 @@ export type SeekerProfile = {
   availability: string;
   skills: string[];
   experiences: Experience[];
-  caught: number;
 };
 
 export type Company = {
@@ -112,10 +91,7 @@ export type Company = {
   sector: string;
   city: string;
   contactEmail: string;
-  plan: SubscriptionPlan;
-  planPrice: number;
   radiusKm: number;
-  subscribedSince: string | null;
 };
 
 export type UserAccount = {

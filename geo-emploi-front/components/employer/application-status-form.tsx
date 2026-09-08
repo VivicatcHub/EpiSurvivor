@@ -7,9 +7,7 @@ import type { FormState } from "@/app/actions/auth";
 import { APPLICATION_STATUS_LABELS } from "@/lib/labels";
 import type { ApplicationStatus } from "@/lib/schemas";
 
-const STATUSES = Object.keys(
-  APPLICATION_STATUS_LABELS,
-) as ApplicationStatus[];
+const STATUSES = Object.keys(APPLICATION_STATUS_LABELS) as ApplicationStatus[];
 
 function Select({ status }: { status: ApplicationStatus }) {
   const { pending } = useFormStatus();
@@ -19,8 +17,6 @@ function Select({ status }: { status: ApplicationStatus }) {
       defaultValue={status}
       disabled={pending}
       aria-label="Statut de la candidature"
-      // `requestSubmit` : le suivi se change en un geste, sans bouton
-      // « Enregistrer » à côté de chaque ligne du tableau.
       onChange={(event) => event.currentTarget.form?.requestSubmit()}
       className="h-7 rounded-lg border border-input bg-transparent px-2 text-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
     >

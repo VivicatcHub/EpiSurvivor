@@ -4,18 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ---------------------------------------------------------------------------
-   Charte graphique — Ministère du Job et Bonheur
-   Référence : charte ministérielle (47 p.), règles appliquées ici :
-     1. Bleu institutionnel #1B3A6B en couleur primaire — JAMAIS en fond de
-        bouton (voir --encre pour les boutons pleins et --primary-surface pour
-        les états sélectionnés).
-     2. Marianne pour les titres, Spectral pour le corps de texte.
-     3. Bloc-marque en haut à gauche, zone de protection respectée, jamais sur
-        une photo (voir components/brand/brand-block.tsx).
-   Toute évolution de ces trois tokens doit passer par le conseiller com.
---------------------------------------------------------------------------- */
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

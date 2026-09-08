@@ -12,13 +12,10 @@ function number(formData: FormData, key: string, fallback: number): number {
   return Number.isFinite(value) ? value : fallback;
 }
 
-/** Publier une offre — employeur authentifié uniquement. */
 export async function publishListing(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  // Une Server Action est un endpoint POST public : on revérifie le rôle ici,
-  // et le backend le revérifie à son tour.
   await requireRole("employer", "/employeur/offres/nouvelle");
 
   let created: Listing;
@@ -34,8 +31,6 @@ export async function publishListing(
         city: String(formData.get("city") ?? ""),
         postalCode: String(formData.get("postalCode") ?? ""),
         radiusKm: number(formData, "radiusKm", 15),
-        lat: number(formData, "lat", 0),
-        lng: number(formData, "lng", 0),
         skills: String(formData.get("skills") ?? "")
           .split(",")
           .map((skill) => skill.trim())
@@ -56,7 +51,6 @@ export async function publishListing(
   redirect(`/offres/${created.id}`);
 }
 
-/** Postuler — réservé aux chercheurs d'emploi connectés (§2.2). */
 export async function applyToListing(
   _prev: FormState,
   formData: FormData,
@@ -82,7 +76,6 @@ export async function applyToListing(
   return { ok: true };
 }
 
-/** §5 : signalement d'une offre frauduleuse, ouvert aux visiteurs anonymes. */
 export async function reportListing(
   _prev: FormState,
   formData: FormData,

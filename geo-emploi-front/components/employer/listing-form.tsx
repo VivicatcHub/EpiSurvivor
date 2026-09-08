@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { LocationPicker } from "@/components/map/location-picker";
 import { CONTRACT_LABELS, CONTRACT_TYPES } from "@/lib/labels";
 
 function Submit() {
@@ -21,7 +20,6 @@ function Submit() {
 }
 
 export function ListingForm({ maxRadiusKm }: { maxRadiusKm: number }) {
-  const [position, setPosition] = useState({ lat: 45.74634, lng: 4.835144 });
   const [radiusKm, setRadiusKm] = useState(Math.min(15, maxRadiusKm));
   const [state, action] = useActionState<FormState, FormData>(
     publishListing,
@@ -29,11 +27,7 @@ export function ListingForm({ maxRadiusKm }: { maxRadiusKm: number }) {
   );
 
   return (
-    <form action={action} className="grid gap-8 lg:grid-cols-2">
-      {/* La position vient de la carte, pas d'une saisie : on la transporte
-          en champs cachés pour que l'action reçoive un FormData complet. */}
-      <input type="hidden" name="lat" value={position.lat} />
-      <input type="hidden" name="lng" value={position.lng} />
+    <form action={action} className="grid gap-8 lg:max-w-2xl">
       <input type="hidden" name="radiusKm" value={radiusKm} />
 
       <div className="space-y-4">
@@ -101,6 +95,10 @@ export function ListingForm({ maxRadiusKm }: { maxRadiusKm: number }) {
         <div className="space-y-2">
           <Label htmlFor="city">Ville</Label>
           <Input id="city" name="city" required placeholder="Lyon" />
+          <p className="text-xs text-muted-foreground">
+            L&apos;offre est positionnée au centre de la commune sur la carte,
+            jamais à l&apos;adresse exacte.
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -133,8 +131,7 @@ export function ListingForm({ maxRadiusKm }: { maxRadiusKm: number }) {
             className="w-full accent-primary"
           />
           <p className="text-xs text-muted-foreground">
-            Votre formule couvre jusqu&apos;à {maxRadiusKm} km. Au-delà, il faut
-            changer d&apos;abonnement.
+            Jusqu&apos;à {maxRadiusKm} km autour de la commune.
           </p>
         </div>
 
@@ -145,26 +142,6 @@ export function ListingForm({ maxRadiusKm }: { maxRadiusKm: number }) {
         ) : null}
 
         <Submit />
-      </div>
-
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label>Emplacement de l&apos;offre</Label>
-          <p className="text-xs text-muted-foreground">
-            Cliquez sur la carte ou déplacez le marqueur — la précision attendue
-            est celle de la rue.
-          </p>
-        </div>
-        <div className="h-80 overflow-hidden rounded-2xl ring-1 ring-foreground/10">
-          <LocationPicker
-            value={position}
-            radiusKm={radiusKm}
-            onChange={setPosition}
-          />
-        </div>
-        <p className="font-mono text-xs text-muted-foreground">
-          lat {position.lat.toFixed(5)} · lng {position.lng.toFixed(5)}
-        </p>
       </div>
     </form>
   );

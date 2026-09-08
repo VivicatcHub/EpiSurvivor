@@ -14,15 +14,11 @@ export default async function OffresPage({
       ? (params.contract as ContractType | "toutes")
       : undefined;
 
-  // Premier lot rendu côté serveur : la liste et le chrome s'affichent sans
-  // attendre le bundle Leaflet, qui arrive derrière un squelette (§3.4).
   let listings: Listing[] = [];
   let unavailable = false;
   try {
     listings = await searchListings({ q, contract });
   } catch {
-    // La carte est publique et sans compte : elle doit rester affichable même
-    // API éteinte, avec un message clair plutôt qu'un écran d'erreur.
     unavailable = true;
   }
 

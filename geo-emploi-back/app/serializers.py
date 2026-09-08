@@ -185,7 +185,7 @@ def experience_out(experience: Experience, titre: str) -> ExperienceOut:
         description=experience.description or "",
     )
 
-def seeker_profile_out(seeker: JobSeeker, account: User, skills: list[str], experiences: list[ExperienceOut], caught: int) -> SeekerProfileOut:
+def seeker_profile_out(seeker: JobSeeker, account: User, skills: list[str], experiences: list[ExperienceOut]) -> SeekerProfileOut:
     if seeker.disponibilite:
         availability = f"Disponible à partir du {seeker.disponibilite:%d/%m/%Y}"
     else:
@@ -199,14 +199,9 @@ def seeker_profile_out(seeker: JobSeeker, account: User, skills: list[str], expe
         availability=availability,
         skills=skills,
         experiences=experiences,
-        caught=caught,
     )
 
-def company_out(employer: Employer, account: User, plan_price: int, radius_km: int) -> CompanyOut:
-    """La formule est portée par le compte (`users.subscription_type`) ; son
-    tarif et son rayon se déduisent de la grille (api/employer.py:PLANS) au
-    lieu d'être stockés en double.
-    """
+def company_out(employer: Employer, account: User, radius_km: int) -> CompanyOut:
     return CompanyOut(
         id=str(employer.id),
         name=employer.nom,
@@ -214,12 +209,7 @@ def company_out(employer: Employer, account: User, plan_price: int, radius_km: i
         sector=employer.secteur or "",
         city=employer.ville or "",
         contact_email=employer.email_contact or account.email,
-        plan=account.subscription_type,
-        plan_price=plan_price,
         radius_km=radius_km,
-        subscribed_since=(
-            _aware(employer.abonne_depuis).date() if employer.abonne_depuis else None
-        ),
     )
 
 def session_user(account: User, display_name: str) -> SessionUser:

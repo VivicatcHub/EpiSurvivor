@@ -112,12 +112,11 @@ carte, la modération et les signalements sans rien saisir.
 | `GET`    | `/api/v1/me`                          | connecté           |
 | `DELETE` | `/api/v1/deleteaccount`               | connecté (RGPD)    |
 | `GET`    | `/api/v1/offers`, `/api/v1/offers/:id`| **public** (§2.2)  |
-| `POST`   | `/api/v1/offers`                      | employeur abonné   |
+| `POST`   | `/api/v1/offers`                      | employeur          |
 | `POST`   | `/api/v1/offers/:id/apply`            | chercheur d'emploi |
 | `POST`   | `/api/v1/offers/:id/report`           | **public** (§5)    |
 | `GET`    | `/api/v1/seeker/profile`, `/applications` | chercheur      |
 | `GET`    | `/api/v1/employer/company`, `/offers`, `/applications` | employeur |
-| `PUT`    | `/api/v1/employer/subscription`       | employeur          |
 | `PATCH`  | `/api/v1/employer/applications/:id`   | employeur (la sienne) |
 | `GET`    | `/api/v1/admin/offers`, `/users`, `/reports`, `/metrics` | admin |
 | `PATCH`  | `/api/v1/admin/offers/:id`, `/users/:id` | admin           |
@@ -134,8 +133,11 @@ La recherche accepte `?q=`, `?contract=` et un cadre de carte
 - **§2.2 archivage à 30 jours** — colonne `archivee_le`, balayage au démarrage
   de l'API, et filtre sur la date dans la recherche (un retard de tâche ne
   peut donc pas remettre une offre périmée sur la carte).
-- **§3.2 précision commune** — `code_insee`, latitude/longitude et rayon portés
-  par chaque offre.
+- **§3.2 précision commune** — la position stockée n'est jamais celle saisie
+  par l'employeur : `app/geocoding.py` la recalcule au centroïde de la
+  commune (`code_insee`, via l'API Adresse) à chaque publication. Les offres
+  existantes ont été reprises une fois par `python -m app.recentrer_offres`,
+  irréversiblement (cf. `JOURNAL.md`).
 - **§3.3 RGPD** — suppression de compte réelle (confirmation par saisie de
   l'e-mail), cascade en base (`ON DELETE CASCADE` sur les profils, offres et
   candidatures ; `SET NULL` sur l'auteur d'un signalement, qui reste instruit),

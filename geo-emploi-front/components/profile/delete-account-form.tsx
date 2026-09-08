@@ -17,11 +17,6 @@ function Submit() {
   );
 }
 
-/**
- * RGPD §3.3 : la suppression doit être réellement atteignable, pas enterrée.
- * La saisie de l'adresse e-mail évite le clic accidentel sur une action
- * irréversible — profil, candidatures et offres partent avec le compte.
- */
 export function DeleteAccountForm({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
   const [state, action] = useActionState<FormState, FormData>(

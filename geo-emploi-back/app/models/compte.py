@@ -3,7 +3,7 @@ employeur rattaché.
 """
 
 from datetime import date, datetime, timezone
-from sqlalchemy import CHAR, Column, Date, DateTime, Text
+from sqlalchemy import CHAR, Column, Date, Text
 from sqlmodel import Field, SQLModel
 from app.models.columns import created_at, fk
 
@@ -13,9 +13,6 @@ class User(SQLModel, table=True):
 
     Les valeurs de `role` sont celles du contrat d'API : 'job_seeker',
     'employer', 'admin' (cf. app/schemas.py, lib/schemas.ts).
-    `subscription_type` porte la formule de l'employeur ('none', 'standard',
-    'premium') ; son tarif et son rayon se déduisent en code (api/employer.py),
-    ils ne sont pas stockés.
     """
     __tablename__ = "users"
     uid: int | None = Field(default=None, primary_key=True)
@@ -25,7 +22,6 @@ class User(SQLModel, table=True):
     password: str
     role: str
     status: str = "active"
-    subscription_type: str = "none"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class JobSeeker(SQLModel, table=True):
@@ -59,5 +55,3 @@ class Employer(SQLModel, table=True):
     ville: str | None = Field(default=None, sa_column=Column(Text))
     # Adresse de candidature, si elle differe de celle du compte.
     email_contact: str | None = Field(default=None, sa_column=Column(Text))
-    # Date de souscription a la formule portee par users.subscription_type.
-    abonne_depuis: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))

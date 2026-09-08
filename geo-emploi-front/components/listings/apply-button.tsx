@@ -27,7 +27,6 @@ export function ApplyButton({
   className,
 }: {
   listingId: string;
-  /** Rôle vérifié côté serveur ; `null` pour un visiteur non connecté. */
   role: Role | null;
   className?: string;
 }) {
@@ -48,8 +47,6 @@ export function ApplyButton({
     );
   }
 
-  // §2.2 : postuler est réservé aux chercheurs d'emploi. La Server Action et
-  // le backend le revérifient — ceci n'est que la version visible de la règle.
   if (role !== "job_seeker") {
     return (
       <Button className={className} disabled>
@@ -62,7 +59,7 @@ export function ApplyButton({
     return (
       <p className="flex items-center gap-1.5 self-center text-sm text-primary">
         <Check className="size-4" aria-hidden />
-        Offre attrapée ! Suivez-la depuis votre profil.
+        Candidature envoyée ! Suivez-la depuis votre profil.
       </p>
     );
   }

@@ -29,11 +29,6 @@ const NAV_BY_ROLE: Record<Role, { href: string; label: string }[]> = {
 
 const PUBLIC_NAV = [{ href: "/offres", label: "Carte des offres" }];
 
-/**
- * `user` vient du layout serveur : l'en-tête ne devine pas la session côté
- * client, il affiche celle que le serveur a vérifiée. Pas de clignotement
- * « déconnecté puis connecté » au premier rendu.
- */
 export function SiteHeader({ user }: { user: SessionUser | null }) {
   const pathname = usePathname();
   const links = user ? NAV_BY_ROLE[user.role] : PUBLIC_NAV;
@@ -74,8 +69,6 @@ export function SiteHeader({ user }: { user: SessionUser | null }) {
               <span className="hidden text-sm text-muted-foreground sm:inline">
                 {user.name} · {ROLE_LABELS[user.role]}
               </span>
-              {/* La déconnexion est une mutation : un formulaire POST vers une
-                  Server Action, pas un onClick qui vide un localStorage. */}
               <form action={signOut}>
                 <Button type="submit" variant="ghost" size="sm">
                   <LogOut data-icon="inline-start" />

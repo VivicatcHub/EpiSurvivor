@@ -33,9 +33,6 @@ def register(data: RegisterIn, response: Response, db: Session = Depends(get_db)
         lastname=data.lastname,
         role=data.role,
         status="active",
-        # L'employeur choisit sa formule juste après (/employeur/abonnement) :
-        # sans abonnement, la publication d'offre reste fermée (402).
-        subscription_type="none",
     )
     db.add(account)
     db.flush()  # pour disposer de account.uid avant d'écrire le profil lié

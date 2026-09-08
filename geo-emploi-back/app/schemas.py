@@ -21,6 +21,9 @@ CONTRACT_TYPES = (
 LISTING_STATUSES = ("publiee", "en_attente", "signalee", "archivee", "refusee")
 # Au-delà, une offre est archivée automatiquement (§2.2 du sujet).
 OFFER_MAX_AGE_DAYS = 30
+# Rayon de diffusion maximal d'une offre. La publication est gratuite et ne
+# dépend plus d'une formule payante (instruction du 7 septembre 2026).
+MAX_RADIUS_KM = 50
 
 class Payload(BaseModel):
     """Base des DTO : camelCase en sortie, snake_case toléré en entrée."""
@@ -78,8 +81,6 @@ class ListingIn(Payload):
     city: str
     postal_code: str
     radius_km: int = 15
-    lat: float
-    lng: float
     skills: list[str] = []
     insee_code: str | None = None
 
@@ -121,7 +122,6 @@ class SeekerProfileOut(Payload):
     availability: str
     skills: list[str]
     experiences: list[ExperienceOut]
-    caught: int
 
 class SeekerProfileIn(Payload):
     headline: str | None = None
@@ -136,13 +136,7 @@ class CompanyOut(Payload):
     sector: str
     city: str
     contact_email: str
-    plan: str
-    plan_price: int
     radius_km: int
-    subscribed_since: date | None
-
-class SubscriptionIn(Payload):
-    plan: str
 
 # -------------------------------------------------------------------- admin
 class UserAccountOut(Payload):

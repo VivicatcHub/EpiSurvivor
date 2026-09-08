@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/offres", label: "Carte des offres" },
   { href: "/inscription", label: "Créer un compte" },
   { href: "/connexion", label: "Connexion" },
+  { href: "/transparence", label: "Transparence" },
 ];
 
 export function SiteFooter() {

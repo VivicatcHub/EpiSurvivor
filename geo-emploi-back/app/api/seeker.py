@@ -17,10 +17,7 @@ def _profile(db: Session, account: User) -> SeekerProfileOut:
         .where(Experience.job_seeker_id == seeker.id)
         .order_by(col(Experience.date_debut).desc())
     ).all()
-    # « Offres attrapées » : le compteur de gamification du sujet, adossé aux
-    # candidatures réelles plutôt qu'à un score stocké à part.
-    caught = len(db.exec(select(Candidature.id).where(Candidature.job_seeker_id == seeker.id)).all())
-    return seeker_profile_out(seeker, account, seeker_skills(db, seeker.id), [experience_out(exp, titre.libelle) for exp, titre in experiences], caught)
+    return seeker_profile_out(seeker, account, seeker_skills(db, seeker.id), [experience_out(exp, titre.libelle) for exp, titre in experiences])
 
 @router.get("/profile", response_model=SeekerProfileOut)
 def get_profile(account: User = Depends(CheckSeeker), db: Session = Depends(get_db)):

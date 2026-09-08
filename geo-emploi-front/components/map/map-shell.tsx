@@ -52,13 +52,6 @@ export function MapShell({
   const q = searchParams.get("q") ?? "";
   const contract = searchParams.get("contract") ?? "";
 
-  /**
-   * Rechargement des offres au déplacement de la carte.
-   *
-   * Débounce à 300 ms pour ne pas tirer une requête par image d'animation, et
-   * AbortController pour qu'une réponse en retard n'écrase pas une plus
-   * fraîche — c'est le bug classique de la recherche par cadre de vue.
-   */
   useEffect(() => {
     if (!boundsBox) return;
     const controller = new AbortController();
@@ -79,7 +72,6 @@ export function MapShell({
         });
         if (response.ok) setListings((await response.json()) as Listing[]);
       } catch {
-        // Requête annulée ou réseau coupé : on garde les marqueurs affichés.
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }

@@ -72,11 +72,11 @@ le `downgrade` inapplicable. Nommer les contraintes qu'on ajoute.
 
 ## Migrations
 
-| Révision                            | Contenu                                                        |
-| ----------------------------------- | -------------------------------------------------------------- |
-| `b81284c6a677` initial schema       | schéma de domaine généré depuis les modèles                     |
-| `31a383d592da` enums vers text      | les statuts et le type de contrat repassent en texte libre       |
-| `5a2399f10a56` offres localisées…   | localisation et salaire des offres, signalements, cascades        |
+| Révision                          | Contenu                                                    |
+| --------------------------------- | ---------------------------------------------------------- |
+| `b81284c6a677` initial schema     | schéma de domaine généré depuis les modèles                |
+| `31a383d592da` enums vers text    | les statuts et le type de contrat repassent en texte libre |
+| `5a2399f10a56` offres localisées… | localisation et salaire des offres, signalements, cascades |
 
 `31a383d592da` retire les types énumérés : plus de contrainte de valeurs côté
 base. La convention, elle, subsiste — les valeurs du schéma restent celles que

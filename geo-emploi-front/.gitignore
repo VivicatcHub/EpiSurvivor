@@ -41,6 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# markedown
-*.md
-!README.md
+# notes locales
+AGENTS.md
+PLAN.md

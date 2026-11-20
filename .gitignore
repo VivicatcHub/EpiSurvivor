@@ -1,3 +1,37 @@
-# markedown
-*.md
-!README.md
+# Audit local (jamais versionné)
+AVIS.md
+
+# Notes et livrables de travail
+ANSWER.md
+ANSWER.pdf
+CHARTE.md
+JOURNAL.md
+MAILS.md
+MAILS.html
+TODO.md
+VIDEO.md
+/image.png
+/image-*.png
+
+# Environnement
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

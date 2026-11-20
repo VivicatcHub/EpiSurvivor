@@ -1,67 +1,52 @@
 # GéoEmploi
 
-Service public de recherche d'emploi géolocalisée — Ministère du Job et Bonheur.
-Le projet est découpé en trois dépôts qui forment **une seule application** :
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/license-Vivicaty-blue)
 
-| Dossier            | Rôle                                                                 | Port |
-| ------------------ | -------------------------------------------------------------------- | ---- |
-| `geo-emploi-db`    | Base PostgreSQL et migrations Alembic, **générées depuis les modèles**| 5555 |
-| `geo-emploi-back`  | API REST FastAPI : authentification, offres, candidatures, modération | 1234 |
-| `geo-emploi-front` | Application Next.js 16 : carte publique, espaces des trois rôles      | 3000 |
+Service public (fictif) de recherche d'emploi géolocalisée, pour le « Ministère du Job et Bonheur » : une carte des offres consultable sans compte, et des espaces pour les chercheurs d'emploi, les employeurs et l'administration.
 
-## Comment les trois tiers se parlent
+> [!WARNING]
+> Projet réalisé à **Epitech** (G-SVR-500 « Survivor »). Ne recopie pas ce code tel quel pour ton propre projet : ça ne t'apprendra rien, et c'est détecté.
 
-```
-navigateur ──► Next.js (serveur) ──► FastAPI ──► PostgreSQL
-            ▲                    ▲            ▲
-    cookie httpOnly    cookie relayé    migrations Alembic
-                                        générées depuis app/models/
-```
+![Carte des offres](images/carte.png)
 
-Trois décisions structurent l'ensemble :
+| Dossier            | Rôle                                                       | Port |
+| ------------------ | ---------------------------------------------------------- | ---- |
+| `geo-emploi-db`    | PostgreSQL + migrations Alembic générées depuis les modèles | 5555 |
+| `geo-emploi-back`  | API REST FastAPI : auth, offres, candidatures, modération   | 1234 |
+| `geo-emploi-front` | Next.js 16 : carte publique et espaces des trois rôles      | 3000 |
 
-1. **Les modèles sont la source de vérité du schéma.** Le schéma est décrit une
-   fois, en SQLModel (`geo-emploi-back/app/models/`) ; les migrations Alembic en
-   sont *dérivées* (`alembic revision --autogenerate`), jamais écrites à la
-   main. Le backend, lui, n'appelle jamais `create_all` : seule une migration
-   appliquée touche la base. Une colonne nouvelle s'ajoute donc au modèle, puis
-   `--autogenerate` produit la révision — et un `--autogenerate` qui ne détecte
-   rien est la preuve que base et modèles concordent.
+Fonctionnement interne, endpoints et points du sujet couverts : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-2. **Le navigateur ne parle jamais au backend.** Les Server Components, Server
-   Actions et Route Handlers de Next appellent l'API et relaient le cookie de
-   session. `API_URL` n'est donc pas dans le bundle, il n'y a pas de CORS à
-   négocier, et le JWT reste dans un cookie `httpOnly` — illisible par un
-   script injecté (§3.1 du sujet).
+## Prérequis
 
-3. **Un seul vocabulaire par étage, deux frontières explicites.** La base parle
-   français, comme le reste du schéma (`statut = 'envoyee'`, `'en_attente'`) ;
-   l'API répond en camelCase avec les valeurs du contrat (`sent`, `pending`) ;
-   l'écran affiche des libellés. Chaque passage a un seul point de traduction :
-   `app/serializers.py` entre la base et l'API, `lib/labels.ts` entre l'API et
-   l'écran. `app/schemas.py` et `lib/schemas.ts` décrivent les mêmes objets, et
-   aucune route ne manipule un statut de base directement.
+- **Docker** avec **Compose v2** (`docker compose`) : suffisant pour tout lancer.
+- Pour lancer service par service : **Python 3.12+** et **Node.js 20.9+** (npm).
 
-L'autorisation est vérifiée trois fois, volontairement : `proxy.ts` (optimiste,
-sur le cookie seul), `lib/dal.ts` (au rendu de la page) et le backend (qui
-tranche). Une Server Action est un endpoint POST public : masquer un bouton
-n'autorise rien.
-
-## Démarrage — Docker
+## Démarrage avec Docker
 
 ```bash
-docker compose up --build
+./rundocker.sh
+```
+
+Ou à la main :
+
+```bash
+docker compose up --build -d
 docker compose run --rm api python -m app.seed --reset   # jeu de démonstration
 ```
 
-Le front est alors sur http://localhost:3000, l'API sur http://localhost:1234
-(documentation interactive : http://localhost:1234/docs).
+- Front : http://localhost:3000
+- API : http://localhost:1234 (doc interactive : http://localhost:1234/docs)
 
-`compose.yaml` enchaîne les services dans l'ordre : la base doit répondre avant
-que les migrations tournent, et les migrations doivent être terminées avant que
-l'API démarre.
+> [!NOTE]
+> PostgreSQL est exposé sur le port **5555** pour ne pas gêner un PostgreSQL local sur 5432. `docker compose down -v` arrête la pile **et efface la base**.
 
-## Démarrage — local, service par service
+## Démarrage service par service
 
 ```bash
 # 1. Base
@@ -72,7 +57,7 @@ docker run -d --name geo-emploi-pg \
 # 2. Migrations
 cd geo-emploi-db
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-cp .env.example .env      # puis y ajouter DATABASE_URL (voir README du dossier)
+cp .env.example .env
 .venv/bin/alembic upgrade head
 
 # 3. API
@@ -91,56 +76,47 @@ npm run dev
 
 ## Comptes de démonstration
 
-Créés par `app/seed.py`, mot de passe commun **`geoemploi2026`** :
+> [!TIP]
+> Créés par `app/seed.py` (42 entreprises, 44 offres dans toute la France). Mot de passe commun : **`geoemploi2026`**.
 
-| Rôle              | Adresse                                  |
-| ----------------- | ---------------------------------------- |
-| Administration    | `jeb@job-et-bonheur.fr`                  |
-| Chercheur d'emploi| `camille.aubert@example.fr`              |
-| Employeur         | `recrutement@rhone-numerique.example.fr` |
+| Rôle               | Adresse                                  |
+| ------------------ | ---------------------------------------- |
+| Administration     | `jeb@job-et-bonheur.fr`                  |
+| Chercheur d'emploi | `camille.aubert@example.fr`              |
+| Employeur          | `recrutement@rhone-numerique.example.fr` |
 
-Le jeu de données couvre 42 entreprises et 44 offres réparties sur toute la
-France, dont une en attente de validation et une signalée — de quoi voir la
-carte, la modération et les signalements sans rien saisir.
+## Captures
 
-## Endpoints
+| Offre | Profil chercheur d'emploi |
+| --- | --- |
+| ![Offre](images/offre.png) | ![Profil chercheur](images/profil_chercheur.png) |
+| **Espace employeur** | **Publier une offre** |
+| ![Espace employeur](images/espace_employeur.png) | ![Publier une offre](images/publier_offre.png) |
+| **Administration** | **Signalements** |
+| ![Administration](images/admin.png) | ![Signalements](images/admin_signalements.png) |
 
-| Méthode  | Chemin                                | Accès              |
-| -------- | ------------------------------------- | ------------------ |
-| `POST`   | `/api/v1/register`, `/api/v1/login`   | public             |
-| `POST`   | `/api/v1/logout`                      | public             |
-| `GET`    | `/api/v1/me`                          | connecté           |
-| `DELETE` | `/api/v1/deleteaccount`               | connecté (RGPD)    |
-| `GET`    | `/api/v1/offers`, `/api/v1/offers/:id`| **public** (§2.2)  |
-| `POST`   | `/api/v1/offers`                      | employeur          |
-| `POST`   | `/api/v1/offers/:id/apply`            | chercheur d'emploi |
-| `POST`   | `/api/v1/offers/:id/report`           | **public** (§5)    |
-| `GET`    | `/api/v1/seeker/profile`, `/applications` | chercheur      |
-| `GET`    | `/api/v1/employer/company`, `/offers`, `/applications` | employeur |
-| `PATCH`  | `/api/v1/employer/applications/:id`   | employeur (la sienne) |
-| `GET`    | `/api/v1/admin/offers`, `/users`, `/reports`, `/metrics` | admin |
-| `PATCH`  | `/api/v1/admin/offers/:id`, `/users/:id` | admin           |
+<details>
+<summary>Plus de captures (accueil, connexion, profil entreprise, mobile)</summary>
 
-La recherche accepte `?q=`, `?contract=` et un cadre de carte
-`?minLat=&maxLat=&minLng=&maxLng=` — c'est ce que la carte appelle, débouncé,
-à chaque déplacement, via le BFF `app/api/offres/route.ts`.
+| Accueil | Connexion |
+| --- | --- |
+| ![Accueil](images/accueil.png) | ![Connexion](images/connexion.png) |
+| **Profil entreprise** | **Mobile** |
+| ![Profil entreprise](images/profil_entreprise.png) | <img src="images/carte_mobile.png" alt="Carte sur mobile" width="260"> |
 
-## Points du sujet couverts par l'intégration
+</details>
 
-- **§2.2 carte sans compte** — `/offres` n'est pas dans le matcher de `proxy.ts`.
-- **§2.2 candidature authentifiée** — vérifiée dans la Server Action *et* par
-  `CheckSeeker` côté API.
-- **§2.2 archivage à 30 jours** — colonne `archivee_le`, balayage au démarrage
-  de l'API, et filtre sur la date dans la recherche (un retard de tâche ne
-  peut donc pas remettre une offre périmée sur la carte).
-- **§3.2 précision commune** — la position stockée n'est jamais celle saisie
-  par l'employeur : `app/geocoding.py` la recalcule au centroïde de la
-  commune (`code_insee`, via l'API Adresse) à chaque publication. Les offres
-  existantes ont été reprises une fois par `python -m app.recentrer_offres`,
-  irréversiblement (cf. `JOURNAL.md`).
-- **§3.3 RGPD** — suppression de compte réelle (confirmation par saisie de
-  l'e-mail), cascade en base (`ON DELETE CASCADE` sur les profils, offres et
-  candidatures ; `SET NULL` sur l'auteur d'un signalement, qui reste instruit),
-  position jamais persistée.
-- **§5 signalement** — ouvert aux visiteurs anonymes, remonté dans l'onglet
-  « Signalements » de l'administration.
+## Contributeurs
+
+| | |
+| --- | --- |
+| Valentin Guinet | [@VivicatcHub](https://github.com/VivicatcHub) |
+| Pierre Riss | [@pierreRISS](https://github.com/pierreRISS) |
+| Léo Morat | [@someone3332](https://github.com/someone3332) |
+| Romain Simonet | [@Romain-Simonet](https://github.com/Romain-Simonet) |
+
+Commits au format `[TAG] message`, avec `ADD` (ajout), `MOD` (modification), `FIX` (correction), `DEL` (suppression) ou `MRG` (merge).
+
+## Licence
+
+Réutilisation libre, y compris commerciale, à condition de mentionner **Vivicaty** : voir [LICENSE.md](LICENSE.md).

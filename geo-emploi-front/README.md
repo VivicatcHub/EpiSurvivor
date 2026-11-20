@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# geo-emploi-front
 
-## Getting Started
+Front Next.js 16 (App Router, React 19, Tailwind 4, shadcn/ui, Leaflet) de GéoEmploi : carte publique des offres et espaces chercheur, employeur et administration.
 
-First, run the development server:
+> [!NOTE]
+> Le navigateur ne parle jamais à l'API : les Server Components et Server Actions l'appellent côté serveur via `API_URL`. Voir [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md).
+
+## Lancer
+
+Nécessite l'API sur `http://localhost:1234` (voir le [README racine](../README.md)) et Node.js 20.9+.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # API_URL
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Commande | Rôle |
+| --- | --- |
+| `npm run dev` | Serveur de développement |
+| `npm run build` | Build de production |
+| `npm run start` | Sert le build |
+| `npm run lint` | ESLint |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Repères
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Chemin | Contenu |
+| --- | --- |
+| `app/` | Pages, Server Actions (`app/actions/`), BFF de la carte (`app/api/offres/`) |
+| `components/` | UI par domaine (`map/`, `listings/`, `employer/`, `admin/`…) et `ui/` (shadcn) |
+| `lib/` | Client API, session, DAL, schémas et libellés |
+| `proxy.ts` | Garde de routes optimiste sur le cookie de session |

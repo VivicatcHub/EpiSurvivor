@@ -32,7 +32,6 @@ class JobSeeker(SQLModel, table=True):
     prenom: str = Field(sa_column=Column(Text, nullable=False))
     telephone: str | None = Field(default=None, sa_column=Column(Text))
     disponibilite: date | None = Field(default=None, sa_column=Column(Date))
-    # Accroche et ville affichées sur le profil public.
     titre_pro: str | None = Field(default=None, sa_column=Column(Text))
     ville: str | None = Field(default=None, sa_column=Column(Text))
     created_at: datetime | None = Field(default=None, sa_column=created_at())
@@ -47,11 +46,8 @@ class Employer(SQLModel, table=True):
     statut_verification: str = Field(default="en_attente",sa_column=Column(Text, nullable=False, server_default="en_attente"))
     created_at: datetime | None = Field(default=None, sa_column=created_at())
     adresse: str | None = Field(default=None, sa_column=Column(Text))
-    # '00000' par defaut : a l'inscription l'employeur ne saisit que sa raison
-    # sociale, la commune arrive avec la premiere offre (ou un geocodeur).
     code_insee: str = Field(default="00000", sa_column=Column(CHAR(5), nullable=False, server_default="00000"))
     code_insee_arrondissement: str = Field(default="00000", sa_column=Column(CHAR(5), nullable=False, server_default="00000"))
     secteur: str | None = Field(default=None, sa_column=Column(Text))
     ville: str | None = Field(default=None, sa_column=Column(Text))
-    # Adresse de candidature, si elle differe de celle du compte.
     email_contact: str | None = Field(default=None, sa_column=Column(Text))
